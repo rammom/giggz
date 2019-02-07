@@ -3,11 +3,12 @@ const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 let UserSchema = new Schema({
-	email:		{ type: String, required: true },
-	name: 		{ type: String, required: true },
-	phone:		{ type: String,	required: true },
-	createdAt:	{ type: String, required: true },
-	updatedAt: 	{ type: String, required: true }
+	email:			{ type: String, required: true },
+	name: 			{ type: String, required: true },
+	phone:			{ type: String,	required: true },
+	appointments:	[{ type: ObjectId, ref: 'Appointment'}],
+	createdAt:		{ type: String, required: true },
+	updatedAt: 		{ type: String, required: true }
 });
 
 UserSchema.pre('save', async () => {

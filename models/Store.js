@@ -11,10 +11,10 @@ let StoreSchema = new Schema({
                 	country:    { type: String, required: true }
                 },
    hours:       { type: ObjectId, ref: 'Availability', required: true },
-   employees:	{ type: ObjectId, ref: 'Employee', required: true },
-   services:	{ type: ObjectId, ref: 'Service', required: true },
-   createdAt:	{ type: Date, required: true },
-   updatedAt:	{ type: Date, required: true }
+   employees:	[{ type: ObjectId, ref: 'Employee' }],
+   services:	[{ type: ObjectId, ref: 'Service' }],
+   createdAt:	{ type: Date },
+   updatedAt:	{ type: Date }
 });
 
 StoreSchema.virtual('fullAddress').get(() => {

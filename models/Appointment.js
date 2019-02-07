@@ -8,6 +8,7 @@ let AppointmentSchema = new Schema({
 	service:	{ type: ObjectId, ref: 'Service', required: true },
 	employee:	{ type: ObjectId, ref: 'Employee', required: true},
 	time:		{ type: Date, required: true },
+	done:		{ type: Boolean, required: true },
 	guest:		{
 					email:		{ type: String },
 					name:		{ type: String, required: true },
