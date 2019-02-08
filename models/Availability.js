@@ -47,40 +47,34 @@ AvailabilitySchema.pre('save', function(next) {
 		> Each slot's start time should be before its end time
 		> A slot's start time should be after the previous slot's end time
 	*/
-	// const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-	// days.forEach((day) => {
-	// 	if (this[day].length == 0) continue;
+	const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+	days.forEach((day) => {
+		if (this[day].length == 0) return;
+		let slot_count = this[day].length;
 
-	// 	let new_day = [];
-	// 	let slot = this[day][0];
-	// 	slot.start = max(0, slot.start);
-	// 	slot.end = min(1439, slot.end);
-	// 	new_day.push(slot);
-
-	// 	for (let i = 1; i < this[day].length; ++i){
-	// 		let slot = this[day][i];
-	// 		slot.start = max(0, slot.start);
-	// 		slot.end = min(1439, slot.end);
+		// check slot 1
+		let current_slot = this[day][0];
+		if (current_slot.start < 0 || current_slot.start > 1439 || current_slot.end < 0 || current_slot.end > 1439)
+			next(new Error('Invalid time slots! - time should be in minutes up to 1439'));
+		if (current_slot.start >= current_slot.end)
+			next(new Error('Invalid time slots! - start time >= end time'));
 			
-	// 	}
-	// });
+		// check other slots if available
+		for (let i = 1; i < slot_count; ++i) {
+			let current_slot = this[day][i];
+			let previous_slot = this[day][i - 1];
+
+			// check current element
+			if (current_slot.start < 0 || current_slot.start > 1439 || current_slot.end < 0 || current_slot.end > 1439 || current_slot.start >= current_slot.end)
+				next(new Error('Invalid time slots! - time should be in minutes up to 1439'));
+
+			// compare to previous element 
+			if (current_slot.start < previous_slot.end)
+				next(new Error('Invalid time slots! - start time >= end time'));
+		}
+	});
 	next();
 });
 
 module.exports = mongoose.model('Availability', AvailabilitySchema);
 
-// let current_slot = Object.assign({}, this[day][i]);
-			// let previous_slot = Object.assign({}, this[day][i-1]);
-
-			// // check first element
-			// if (i == 1){
-			// 	if (previous_slot.start < 0 || previous_slot.start > 1439 || previous_slot.end < 0 || previous_slot.end > 1439 || previous_slot.start >= previous_slot.end)
-			// 		next(new Error('Invalid time slots!'));
-			// }
-
-			// // check current element
-			// if (current_slot.start < 0 || current_slot.start > 1439 || 
-			// 	current_slot.end < 0 || current_slot.end > 1439 || 
-			// 	current_slot.start >= current_slot.end || 
-			// 	previous_slot.end > current_slot.start)
-			// 	next(new Error('Invalid time slots!'));

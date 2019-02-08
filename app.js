@@ -5,14 +5,17 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 
-const apiRouter = require('./routes/api');
+const apiRouter = {
+	index: require('./routes/api.route'),
+	store: require('./routes/api.store.route'),
+}
 
 let app = express();
 
 const mongo = {
 	ip: 'localhost',
 	port: 27017,
-	name: 'book',
+	name: 'Giggs',
 }
 mongoose.connect(`mongodb://${mongo.ip}:${mongo.port}/${mongo.name}`, { useNewUrlParser: true })
 		.then(
@@ -28,7 +31,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser());
 
-app.use('/api', apiRouter);
+app.use('/api', apiRouter.index);
+app.use('/api/store', apiRouter.store);
 
 // catch 404 
 app.use(function(req, res, next) {

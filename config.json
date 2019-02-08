@@ -1,0 +1,10 @@
+{
+	"development": {
+		"protocol": "http",
+		"address": "localhost",
+		"port": "3001"
+	},
+	"production": {
+
+	}
+}
