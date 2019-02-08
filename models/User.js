@@ -5,7 +5,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 let UserSchema = new Schema({
 	email:			{ type: String, required: true },
 	name: 			{ type: String, required: true },
-	phone:			{ type: String,	required: true },
+	phone:			{ type: String },
 	appointments:	[{ type: ObjectId, ref: 'Appointment'}],
 	createdAt:		{ type: String, required: true },
 	updatedAt: 		{ type: String, required: true }
