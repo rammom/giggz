@@ -27,7 +27,7 @@ const rmatch = (str, expression) => {
 	Checks if given string matches expected email format
 */
 const isEmail = (email) => {
-	let expression = /[A-z0-9\.\_]+@[A-z0-9]+.[A-z]+/g;
+	let expression = /^[A-z0-9\.\_]+@[A-z0-9]+.[A-z]+$/g;
 	return rmatch(email, expression);
 }
 
@@ -35,7 +35,8 @@ const isEmail = (email) => {
 	Check if given password follows current guidlines
 */
 const isValidPassword = (password) => {
-	let expression = /[A-z0-9\.\_\!\?]*/g;
+	let expression = /^[A-z0-9\.\_\!\?]+$/g;
+	console.log(rmatch(password, expression));
 	return rmatch(password, expression) && length(password, 8);
 }
 
@@ -55,14 +56,14 @@ const isSameString = (str1, str2) => {
 }
 
 const isAlpha = (str) => {
-	let expr = /[A-z]+/g
+	let expr = /^[A-z]+$/g;
 	if (!str.match(expr)) return false;
 	return true;
 }
 
 const isPhoneNumber = (str) => {
-	let expr = /[0-9]+/g;
-	return str.match(expr) && str.length == 9;
+	let expr = /^[0-9]+$/g;
+	return str.match(expr) && str.length == 10;
 }
 
 module.exports = {

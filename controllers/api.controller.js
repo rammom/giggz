@@ -13,10 +13,10 @@ const verify = require('../utils/verify');
 */
 const index = {
 	status: (req, res, next) => {
-		return sendResponse(res, "ok 👍");
+		return sendResponse(res, "ok");
 	},
 	authenticated: (req, res, next) => {
-		return sendResponse(res, "authenticated 👍");		
+		return sendResponse(res, "authenticated");		
 	}
 }
 

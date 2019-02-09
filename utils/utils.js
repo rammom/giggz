@@ -73,6 +73,7 @@ const comparePassword = async (password, hash) => {
 const handleError = (res, err, status, msg="ERROR", other_fields={}) => {
 	other_fields.msg = msg;
 	other_fields.err = err;
+	other_fields.status = status;
 	return res.status(status).json(other_fields);
 }
 
@@ -90,13 +91,34 @@ const sendResponse = (res, body={}, msg=null, status=200) => {
 	if (typeof msg != 'string') msg="ok";
 	if (typeof status != 'number') status=200;
 	body.msg = (body.msg) ? body.msg : msg;
+	body.status = status;
 	return res.status(status).json(body);
 }
 
+/**
+ * 	Move onto next if in development environment
+ * 
+ * @param {Express request object} req 
+ * @param {Express response object} res 
+ * @param {Express next object} next 
+ */
+const isDevelopment = (req, res, next) => {
+	if (req.app.get('env') == 'development' || req.app.testing) next();
+	else next('Unauthorized');
+}
+
+/**
+ * 	Check if current requesting user is authenticated
+ * 	** Allows pass if in development environment **
+ * 
+ * @param {Express request object} req 
+ * @param {Express response object} res 
+ * @param {Express next object} next 
+ */
 const isAuthenticated = (req, res, next) => {
-	if (req.app.get('env') === 'development') next();
+	if (req.app.get('env') == 'development' && !req.app.testing) next();
 	else if (req.user) next();
-	else next('not authenticated');
+	else next('Unauthorized');
 }
 
 
@@ -107,5 +129,6 @@ module.exports = {
 	comparePassword,
 	handleError,
 	sendResponse,
-	isAuthenticated
+	isDevelopment,
+	isAuthenticated,
 }

@@ -23,7 +23,7 @@ const register = async (req, res, next) => {
 	// verify required fields
 	if (!email || !verify.isEmail(email)) 
 		invalid_fields.push('email');
-	if (!password || !verify.isValidPassword(password) || !verify.length(password, 8))
+	if (!password || !verify.isValidPassword(password))
 		invalid_fields.push('password');
 	if (!password_verify || !verify.isSameString(password, password_verify))
 		invalid_fields.push('password_verify');
@@ -48,8 +48,8 @@ const register = async (req, res, next) => {
 		.then((users) => {
 			if (!users) return;
 			users.forEach((user) => {
-				if (user.email == email) duplicate_fields.push(email);
-				if (phone && user.phone == phone) duplicate_fields.push(phone);
+				if (user.email == email) duplicate_fields.push("email");
+				if (phone && user.phone == phone) duplicate_fields.push("phone");
 			});
 		})
 		.catch((err) => {
@@ -59,7 +59,7 @@ const register = async (req, res, next) => {
 	if (findError) 
 		return handleError(res, findError, 500);
 	if (duplicate_fields.length != 0) 
-		return handleError(res, null, 400, "DUPLICATE FIELDS", {duplicate_fields})
+		return handleError(res, null, 400, "duplicate fields", {duplicate_fields})
 	
 	// hash password
 	let hashError = null;
@@ -110,8 +110,39 @@ const logout = (req, res, next) => {
 	return sendResponse(res, "logged out");
 }
 
+/*
+	Delete a user
+	** Should only be called from tests or manually in dev development **
+*/
+const deleteUser = async (req, res, next) => {
+	if (req.app.get('env') != 'development' && !req.app.testing)
+		return sendResponse(res, 'Unauthorized', 401);
+
+	const email = req.body.email.toUpperCase();
+
+	let user_error = null;
+	let user = null;
+	await User.findOne({email})
+		.then( u => user = u )
+		.catch( err => user_error = err );
+	
+	if (user_error)
+		return handleError(res, user_error, 500);
+	if (!user)
+		return sendResponse(res, "no user found", 404);
+
+	await user.remove()
+		.catch(err => user_error = err );
+
+	if (user_error)
+		return handleError(res, user_error, 500);
+
+	return sendResponse(res, "deleted");
+}
+
 module.exports = {
 	register,
 	login,
 	logout,
+	deleteUser,
 }	
