@@ -15,21 +15,28 @@ const hasProperties = (obj, properties) => {
 }
 
 /*
-	Checks if given string matches expected email format
-*/
-const isEmail = (email) => {
-	expression = /[A-z0-9\.\_]+@[A-z0-9]+.[A-z]+/g
-	if (!email.match(expression)) return false;
-	return true;
-}
-
-/*
 	Given string and expression returns true if match is found
 										false otherwise
 */
 const rmatch = (str, expression) => {
 	if (!str.match(expression)) return false;
 	return true;
+}
+
+/*
+	Checks if given string matches expected email format
+*/
+const isEmail = (email) => {
+	let expression = /[A-z0-9\.\_]+@[A-z0-9]+.[A-z]+/g;
+	return rmatch(email, expression);
+}
+
+/*
+	Check if given password follows current guidlines
+*/
+const isValidPassword = (password) => {
+	let expression = /[A-z0-9\.\_\!\?]*/g;
+	return rmatch(password, expression) && length(password, 8);
 }
 
 /*
@@ -61,6 +68,7 @@ const isPhoneNumber = (str) => {
 module.exports = {
 	hasProperties,
 	isEmail,
+	isValidPassword,
 	rmatch,
 	length,
 	isSameString,
