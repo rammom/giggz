@@ -89,9 +89,10 @@ const sendResponse = (res, body={}, msg="ok", status=200) => {
 	if (typeof body != 'object') body = {};
 	if (typeof msg != 'string') msg="ok";
 	if (typeof status != 'number') status=200;
-	body.msg = msg;
+	body.msg = (body.msg) ? body.msg : msg;
 	return res.status(status).json(body);
 }
+
 
 module.exports = {
 	time_to_minutes,
