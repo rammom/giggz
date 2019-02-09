@@ -1,6 +1,7 @@
 # dependencies
 **/node_modules/
 config.json
+dump.rdb
 /.pnp
 .pnp.js
 
