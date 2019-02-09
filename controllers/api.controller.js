@@ -10,7 +10,7 @@ const verify = require('../utils/verify');
 */
 const index = {
 	status: async (req, res, next) => {
-		return sendResponse(res, "ok 👍")
+		return sendResponse(res, "ok 👍");
 	}
 }
 
