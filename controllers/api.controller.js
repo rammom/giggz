@@ -12,8 +12,11 @@ const verify = require('../utils/verify');
 	Check status of app
 */
 const index = {
-	status: async (req, res, next) => {
+	status: (req, res, next) => {
 		return sendResponse(res, "ok 👍");
+	},
+	authenticated: (req, res, next) => {
+		return sendResponse(res, "authenticated 👍");		
 	}
 }
 

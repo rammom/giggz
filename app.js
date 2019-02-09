@@ -4,6 +4,42 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+const redis = require("redis");
+const redis_client = redis.createClient();
+const bodyParser = require('body-parser');
+const User = require('./models/User');
+const utils = require('./utils/utils');
+
+redis_client.on('connect', () => {
+	if (app.get('env') === 'development') console.log(`* Connected to redis client`);
+});
+redis_client.on('error', (err) => {
+	next(err);
+});
+
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy({
+		usernameField: 'email',
+		passwordField: 'password',
+	},
+	async (email, password, done) => {
+		email = email.toUpperCase();
+		await User.findOne({email})
+			.then(async (user) => {
+				if (!user)
+					return done(null, false, { message: "Bad Credentials" });
+				if (!await utils.comparePassword(password, user.password)){
+					return done(null, false, { message: "Bad Credentials" });
+				}
+				return done(null, user);
+			})
+			.catch(err => done(err));
+	}
+));
 
 const apiRouter = {
 	index: require('./routes/api.route'),
@@ -12,11 +48,16 @@ const apiRouter = {
 const authRouter = require('./routes/auth.route');
 
 let app = express();
+const config = (app.get('env') === 'development') 	
+				? require('./config.json').development
+				: require('./config.json').production;
+
+app.set('view engine', 'ejs');
 
 const mongo = {
-	ip: 'localhost',
-	port: 27017,
-	name: 'Giggs',
+	ip: config.db_address,
+	port: config.db_port,
+	name: config.db_name,
 }
 mongoose.connect(`mongodb://${mongo.ip}:${mongo.port}/${mongo.name}`, { useNewUrlParser: true })
 		.then(
@@ -25,12 +66,29 @@ mongoose.connect(`mongodb://${mongo.ip}:${mongo.port}/${mongo.name}`, { useNewUr
 		);
 
 app.use(logger('dev'));
-
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: false }));
-
 app.use(cookieParser());
+app.use(session({
+	store: new RedisStore({ redis_client }),
+	secret: config.session_secret, 
+	resave: true,
+	saveUninitialized: false
+}));
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (user, done) {
+	done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+	User.findById(id, function (err, user) {
+		done(err, user);
+	});
+});
 
 app.use('/auth', authRouter);
 app.use('/api', apiRouter.index);
@@ -47,9 +105,7 @@ app.use(function(err, req, res, next) {
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-	// render the error page
-	res.status(err.status || 500);
-	res.render('error');
+	utils.handleError(res, err, 401);
 });
 
 module.exports = app;

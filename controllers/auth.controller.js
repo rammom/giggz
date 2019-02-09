@@ -92,41 +92,26 @@ const register = async (req, res, next) => {
 		return handleError(res, saveError, 500);
 
 	// success
-	return sendResponse(res, "registered", 200);
+	return sendResponse(res, "registered");
 }
 
 /*
 	Login user
 */
-const login = async (req, res, next) => {
-	let email = req.body.email.toUpperCase();
-	let password = req.body.password;
+const login = (req, res, next) => {
+	return sendResponse(res, "authenticated");
+}
 
-	if (!email || !password || !verify.isEmail(email) || !verify.isValidPassword(password))
-		return sendResponse(res, "BAD REQUEST", 400);
-	
-	let user = null
-	let userError = null;
-	await User.findOne({email})
-		.then( u => user = u )
-		.catch( err => userError = err );
-
-	if (!user)
-		return sendResponse(res, "authentication failed");
-	if (userError)
-		return handleError(res, err, 500);
-	
-	// compare passwords
-	if (!utils.comparePassword(user.password, password))
-		return sendResponse(res, "authentication failed");
-
-	// passwords match, return user
-	user.password = null;
-	return sendResponse(res, {user}, "authenticated");
-
+/*
+	Logout user
+*/
+const logout = (req, res, next) => {
+	req.logout();
+	return sendResponse(res, "logged out");
 }
 
 module.exports = {
 	register,
 	login,
+	logout,
 }	
