@@ -23,7 +23,7 @@ const register = async (req, res, next) => {
 	// verify required fields
 	if (!email || !verify.isEmail(email)) 
 		invalid_fields.push('email');
-	if (!password || !verify.rmatch(password, /[A-z0-9\.\_\!\?]*/g) || !verify.length(password, 8))
+	if (!password || !verify.isValidPassword(password) || !verify.length(password, 8))
 		invalid_fields.push('password');
 	if (!password_verify || !verify.isSameString(password, password_verify))
 		invalid_fields.push('password_verify');
@@ -95,28 +95,38 @@ const register = async (req, res, next) => {
 	return sendResponse(res, "registered", 200);
 }
 
-// /*
-// 	Login user
-// */
-// const login = async (req, res, next) => {
-// 	let email = req.body.email;
-// 	let password = req.body.password;
+/*
+	Login user
+*/
+const login = async (req, res, next) => {
+	let email = req.body.email.toUpperCase();
+	let password = req.body.password;
 
-// 	if (!email || !password)
-// 		return sendResponse(res, "BAD REQUEST", 400);
+	if (!email || !password || !verify.isEmail(email) || !verify.isValidPassword(password))
+		return sendResponse(res, "BAD REQUEST", 400);
 	
-// 	let not_found = false;
-// 	let userError = null;
-// 	await User.findOne({email})
-// 		.then((user) => {
-// 			if (!user) return not_found = true;
+	let user = null
+	let userError = null;
+	await User.findOne({email})
+		.then( u => user = u )
+		.catch( err => userError = err );
 
-// 		})
-// 		.catch((err) => {
-// 			return userError = err;
-// 		});
-// }
+	if (!user)
+		return sendResponse(res, "authentication failed");
+	if (userError)
+		return handleError(res, err, 500);
+	
+	// compare passwords
+	if (!utils.comparePassword(user.password, password))
+		return sendResponse(res, "authentication failed");
+
+	// passwords match, return user
+	user.password = null;
+	return sendResponse(res, {user}, "authenticated");
+
+}
 
 module.exports = {
-	register
+	register,
+	login,
 }	
