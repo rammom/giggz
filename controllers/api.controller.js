@@ -16,11 +16,6 @@ const index = {
 	}
 }
 
-<<<<<<< HEAD
-/*
-	store functions
-*/
-=======
 const employee = {
 	/*
 	*		Create a new employee
@@ -64,7 +59,10 @@ const employee = {
 	}
 }
 
->>>>>>> Adding employee functions
+
+/*
+	store functions
+*/
 const store = {
 
 	/**
