@@ -1,4 +1,7 @@
 const Store = require('../models/Store');
+const Employee = require('../models/Employee');
+const Service = require('../models/Service');
+const User = require('../models/User');
 const Availability = require('../models/Availability');
 const ttm = require('../utils/utils').time_to_minutes;
 const handleError = require('../utils/utils').handleError;
@@ -13,6 +16,9 @@ const index = {
 		return sendResponse(res, "ok 👍")
 	}
 }
+
+
+
 
 /*
 	store functions
@@ -65,8 +71,66 @@ const store = {
 
 		return sendResponse(res, {store}, "store created");
 
-	}
+	},
 
+	addEmployee: async (req, res, next) =>{
+		const email = req.body.email.toUpperCase();
+		const storeid = req.body.storeid;
+
+		let find_error = null;		
+		let user = null; //Checking if user exists
+		await User.findOne({email})
+			.then( u => user = u )
+			.catch( err => find_error = err );
+		if (!user){
+			return sendResponse(res, "User not found");
+		}
+		if (user.employee){ //Makes sure user isn't already employed
+			return sendResponse(res, "Failed to add employee!");
+		}
+
+		let store = null; //Checking if store exists
+		await Store.findOne({_id:storeid})
+			.then( s => store = s )
+			.catch( err => find_error = err );
+		if (!store){
+			return sendResponse(res, "Store not found");
+		}
+
+		let save_error = null; //Creating Employee
+		let new_employee = new Employee(
+			{
+				user:user._id,
+				store:store._id,
+				role:"employee"
+			}
+		);
+
+		await new_employee.save() //Making sure employee saves properly
+			.catch((err) => save_error = err);
+		if(save_error){
+			return handleError(res, save_error, 500, "while saving employee");
+		}
+
+		user.employee = new_employee._id; //Changing user status to reflect employment
+		await user.save()
+			.catch((err) => save_error = err);
+		if (save_error){ 
+			new_employee.remove(); //Remove employee if user employment can't be changed
+			return handleError(res, save_error, 500, "while saving employee");
+		}
+
+		store.employees.push(new_employee._id); //Changing store employee directory
+		await store.save()
+			.catch((err) => save_error = err);
+		if (save_error){ 
+			new_employee.remove(); //Remove employee if store employees can't be changed
+			return handleError(res, save_error, 500, "while saving employee");
+		}
+
+		return sendResponse(res, "Employee successfully created");
+	}
+		
 
 }
 
