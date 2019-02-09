@@ -12,8 +12,11 @@ const verify = require('../utils/verify');
 	Check status of app
 */
 const index = {
-	status: async (req, res, next) => {
-		return sendResponse(res, "ok 👍")
+	status: (req, res, next) => {
+		return sendResponse(res, "ok 👍");
+	},
+	authenticated: (req, res, next) => {
+		return sendResponse(res, "authenticated 👍");		
 	}
 }
 
@@ -64,7 +67,7 @@ const store = {
 
 		let storeError = null;
 		await store.save()
-			.catch((err) => storeError=err);
+			.catch(err => storeError=err);
 
 		if (storeError)
 			return handleError(res, storeError, 500, "while saving store");

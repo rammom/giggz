@@ -4,8 +4,9 @@
 const express = require('express');
 const router = express.Router();
 const apiController = require('../controllers/api.controller');
+const { isAuthenticated } = require('../utils/utils');
 
-router.post('/', apiController.store.create);
-router.post('/addemployee', apiController.store.addEmployee);
+router.post('/', isAuthenticated, apiController.store.create);
+router.post('/addemployee', isAuthenticated, apiController.store.addEmployee);
 
 module.exports = router;

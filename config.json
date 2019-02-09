@@ -1,0 +1,20 @@
+{
+	"development": {
+		"protocol": "http",
+		"address": "localhost",
+		"port": "3001",
+		"db_address": "localhost",
+		"db_port": "27017",
+		"db_name": "Giggs",
+		"session_secret": "afh8d90q2iuk4jqbfnasd90o32hberfkaf7b3802t4b2ybqr0uidjba"
+	},
+	"production": {
+		"protocol": "http",
+		"address": "localhost",
+		"port": "3001",
+		"db_address": "localhost",
+		"db_port": "27017",
+		"db_name": "Giggs",
+		"session_secret": "afh8d90q2iuk4jqbfnasd90o32hberfkaf7b3802t4b2ybqr0uidjba"
+	}
+}

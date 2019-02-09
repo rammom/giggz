@@ -93,6 +93,12 @@ const sendResponse = (res, body={}, msg=null, status=200) => {
 	return res.status(status).json(body);
 }
 
+const isAuthenticated = (req, res, next) => {
+	if (req.app.get('env') === 'development') next();
+	else if (req.user) next();
+	else next('not authenticated');
+}
+
 
 module.exports = {
 	time_to_minutes,
@@ -100,5 +106,6 @@ module.exports = {
 	hashPassword,
 	comparePassword,
 	handleError,
-	sendResponse
+	sendResponse,
+	isAuthenticated
 }
