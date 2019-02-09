@@ -1,12 +1,11 @@
 const verify = require('../utils/verify');
 const utils = require('../utils/utils');
 const handleError = utils.handleError;
+const sendResponse = utils.sendResponse;
 const User = require('../models/User');
 
 /*
 	Register a new user
-
-	Returns list of invalid required fields on error
 */
 const register = async (req, res, next) => {
 
@@ -93,9 +92,30 @@ const register = async (req, res, next) => {
 		return handleError(res, saveError, 500);
 
 	// success
-	return utils.sendResponse(res, "registered", 200);
-
+	return sendResponse(res, "registered", 200);
 }
+
+// /*
+// 	Login user
+// */
+// const login = async (req, res, next) => {
+// 	let email = req.body.email;
+// 	let password = req.body.password;
+
+// 	if (!email || !password)
+// 		return sendResponse(res, "BAD REQUEST", 400);
+	
+// 	let not_found = false;
+// 	let userError = null;
+// 	await User.findOne({email})
+// 		.then((user) => {
+// 			if (!user) return not_found = true;
+
+// 		})
+// 		.catch((err) => {
+// 			return userError = err;
+// 		});
+// }
 
 module.exports = {
 	register

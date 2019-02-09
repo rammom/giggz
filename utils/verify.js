@@ -53,6 +53,11 @@ const isAlpha = (str) => {
 	return true;
 }
 
+const isPhoneNumber = (str) => {
+	let expr = /[0-9]+/g;
+	return str.match(expr) && str.length == 9;
+}
+
 module.exports = {
 	hasProperties,
 	isEmail,
@@ -60,4 +65,5 @@ module.exports = {
 	length,
 	isSameString,
 	isAlpha,
+	isPhoneNumber,
 }
