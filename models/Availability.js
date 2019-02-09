@@ -30,16 +30,16 @@ let AvailabilitySchema = new Schema({
 					start:		{ type: Number, required: true },
 					end:		{ type: Number, required: true }
 				}],
-	createdAt:	{ type: Date, default: Date.now },
-	updatedAt: 	{ type: Date, default: Date.now }
+	createdAt:	{ type: Date },
+	updatedAt: 	{ type: Date }
 });
 
 AvailabilitySchema.pre('save', function(next) {
 
-	const datetime = new Date();
+	let datetime = new Date();
 	if (this.createdAt == null) this.createdAt = datetime;
 	this.updatedAt = datetime;
-
+	
 	// moose: Make this check async to avoid blocking issues.. This implementation is VERY NAIVE!!!
 	/* 
 		Check for valid Availability structure (times align)

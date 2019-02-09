@@ -9,6 +9,7 @@ const apiRouter = {
 	index: require('./routes/api.route'),
 	store: require('./routes/api.store.route'),
 }
+const authRouter = require('./routes/auth.route');
 
 let app = express();
 
@@ -31,6 +32,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser());
 
+app.use('/auth', authRouter);
 app.use('/api', apiRouter.index);
 app.use('/api/store', apiRouter.store);
 

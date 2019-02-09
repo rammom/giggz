@@ -21,9 +21,11 @@ StoreSchema.virtual('fullAddress').get(() => {
 	return `${this.address.street}, ${this.address.city}, ${this.address.state}, ${this.address.country}`.toUpperCase();
 });
 
-StoreSchema.pre('save', async () => {
-	if (this.createdAt == null) this.createdAt = new Date();
-	this.updatedAt = new Date();
+StoreSchema.pre('save', function(next) {
+	let datetime = new Date();
+	if (this.createdAt == null) this.createdAt = datetime;
+	this.updatedAt = datetime;
+	next();
 });
 
 module.exports = mongoose.model('Store', StoreSchema);

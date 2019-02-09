@@ -1,14 +1,22 @@
 const Store = require('../models/Store');
 const Availability = require('../models/Availability');
 const ttm = require('../utils/utils').time_to_minutes;
+const handleError = require('../utils/utils').handleError;
+const sendResponse = require('../utils/utils').sendResponse;
 const verify = require('../utils/verify');
 
+/*
+	Check status of app
+*/
 const index = {
 	status: async (req, res, next) => {
-		res.status(200).send('ok 👍');
+		return sendResponse(res, "ok 👍")
 	}
 }
 
+/*
+	store functions
+*/
 const store = {
 
 	/**
@@ -21,33 +29,24 @@ const store = {
 		const hours = req.body.hours;
 
 		// check given data
-		if (!name || !address || !hours){
-			return res.status(400).json({
-				error: `ERROR: name, address and hours are required!`
-			});
-		}
+		if (!name || !address || !hours)
+			return handleError(res, null, 400, `ERROR: name, address and hours are required!`);
 
-		if (!verify.checkObjectProperties(address, ['street', 'city', 'state', 'country'])){
-			return res.status(400).json({
-				error: `ERROR: address not formatted properly!`
-			});
-		}
+		if (!verify.hasProperties(address, ['street', 'city', 'state', 'country']))
+			return handleError(res, null, 400, `ERROR: address not formatted properly!`);
 
-		if (!verify.checkObjectProperties(hours, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])){
-			return res.status(400).json({
-				error: `ERROR: hours not formatted properly!`
-			});
-		}
+		if (!verify.hasProperties(hours, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']))
+			return handleError(res, null, 400, `ERROR: hours not formatted properly!`);			
 
 		// create Availability
 		let availability = new Availability(hours);
 
+		let availabilityError = null;
 		await availability.save()
-			.catch((err) => {
-				return res.status(500).json({
-					error: `ERROR saving availability failed: ${err}`
-				});
-			});
+			.catch(err => availabilityError=err);
+
+		if (availabilityError)
+			return handleError(res, availabilityError, 500, "while saving availablity");
 
 		let store = new Store({
 			name: name,
@@ -57,17 +56,14 @@ const store = {
 			services: []
 		});
 
+		let storeError = null;
 		await store.save()
-			.catch((err) => {
-				return res.status(500).json({
-					error: `ERROR saving store failed: ${err}`
-				});
-			});
+			.catch((err) => storeError=err);
 
-		res.status(200).json({
-			msg: `Store created!`,
-			store: store
-		});
+		if (storeError)
+			return handleError(res, storeError, 500, "while saving store");
+
+		return sendResponse(res, {store}, "store created");
 
 	}
 
