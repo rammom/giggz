@@ -11,6 +11,7 @@ const redis_client = redis.createClient();
 const bodyParser = require('body-parser');
 const User = require('./models/User');
 const utils = require('./utils/utils');
+const verify = require('./utils/verify');
 
 redis_client.on('connect', () => {
 	if (app.get('env') === 'development') console.log(`* Connected to redis client`);
@@ -28,6 +29,7 @@ passport.use(new LocalStrategy({
 	},
 	async (email, password, done) => {
 		email = email.toUpperCase();
+		if (!verify.isEmail(email)) return done(null, false, { message: "Bad Credentials" });
 		await User.findOne({email})
 			.then(async (user) => {
 				if (!user)
@@ -51,6 +53,7 @@ let app = express();
 const config = (app.get('env') === 'development') 	
 				? require('./config.json').development
 				: require('./config.json').production;
+app.testing = config.testing;
 
 app.set('view engine', 'ejs');
 
@@ -104,8 +107,8 @@ app.use(function(err, req, res, next) {
 	// set locals, only providing error in development
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-	utils.handleError(res, err, 401);
+	const msg = (typeof err == 'string') ? err : null;
+	utils.handleError(res, err, 401, msg);
 });
 
 module.exports = app;

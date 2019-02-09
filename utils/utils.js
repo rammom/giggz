@@ -103,8 +103,8 @@ const sendResponse = (res, body={}, msg=null, status=200) => {
  * @param {Express next object} next 
  */
 const isDevelopment = (req, res, next) => {
-	if (req.app.get('env') == 'development') next();
-	else next('not authenticated');
+	if (req.app.get('env') == 'development' || req.app.testing) next();
+	else next('Unauthorized');
 }
 
 /**
@@ -116,9 +116,9 @@ const isDevelopment = (req, res, next) => {
  * @param {Express next object} next 
  */
 const isAuthenticated = (req, res, next) => {
-	if (req.app.get('env') == 'development') next();
+	if (req.app.get('env') == 'development' && !req.app.testing) next();
 	else if (req.user) next();
-	else next('not authenticated');
+	else next('Unauthorized');
 }
 
 
