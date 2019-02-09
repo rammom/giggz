@@ -7,13 +7,15 @@ let ServiceSchema = new Schema({
 	store:		{ type: ObjectId, ref: 'Store', required: true },
 	price:		{ type: Number, required: true },
 	length:		{ type: Number, required: true },
-	createdAt:	{ type: Date, required: true },
-	updatedAt: 	{ type: Date, required: true }
+	createdAt:	{ type: Date },
+	updatedAt: 	{ type: Date }
 });
 
-ServiceSchema.pre('save', async () => {
-	if (this.createdAt == null) this.createdAt = new Date();
-	this.updatedAt = new Date();
+ServiceSchema.pre('save', function (next) {
+	let datetime = new Date();
+	if (this.createdAt == null) this.createdAt = datetime;
+	this.updatedAt = datetime;
+	next();
 });
 
 module.exports = mongoose.model('Service', ServiceSchema);

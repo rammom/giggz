@@ -14,13 +14,15 @@ let AppointmentSchema = new Schema({
 					name:		{ type: String, required: true },
 					phone:		{ type: String, required: true }
 				},
-	createdAt:	{ type: Date, required: true },
-	updatedAt:	{ type: Date, required: true }
+	createdAt:	{ type: Date },
+	updatedAt:	{ type: Date }
 });
 
-AppointmentSchema.pre('save', async () => {
-	if (this.createdAt == null) this.createdAt = new Date();
-	this.updatedAt = new Date();
+AppointmentSchema.pre('save', function (next) {
+	let datetime = new Date();
+	if (this.createdAt == null) this.createdAt = datetime;
+	this.updatedAt = datetime;
+	next();
 });
 
 module.exports = mongoose.model('Appointment', AppointmentSchema);
