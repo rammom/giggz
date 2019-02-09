@@ -16,7 +16,7 @@ redis_client.on('connect', () => {
 	if (app.get('env') === 'development') console.log(`* Connected to redis client`);
 });
 redis_client.on('error', (err) => {
-	next(err);
+	if (app.get('env') === 'development') console.log(`* Failed to connect to redis client ${err}`);
 });
 
 const passport = require('passport');
