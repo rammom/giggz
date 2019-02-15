@@ -4,6 +4,16 @@ const config = require('../config.json').development;
 const url = `${config.protocol}://${config.address}:${config.port}`;
 const request = require('supertest')(url);
 
+const mongoose = require('mongoose');
+const User = require('../models/User');
+
+const mongo = {
+	ip: config.db_address,
+	port: config.db_port,
+	name: config.db_name,
+}
+mongoose.connect(`mongodb://${mongo.ip}:${mongo.port}/${mongo.name}`, { useNewUrlParser: true })
+
 describe('Authentication', () => {
 
 	const gen_user_data = () => {
@@ -299,17 +309,11 @@ describe('Authentication', () => {
 				});
 		});
 
-		it('CLEAN: delete user (no phone)', (done) => {
-			let registration_data = gen_user_data();
-			registration_data.email = email2;
-			registration_data.phone = null;
-			request.delete(register_route)
-				.send({ email: registration_data.email })
-				.expect(200)
-				.end((err, res) => {
-					if (err) return done(err);
-					assert(res.body.msg == 'deleted', `USER NOT DELETED. error message -> ${res.body.msg}`);
-					done();
+		it('CLEAN: delete user (no phone)', async () => {
+			await User.findOne( {email: email2.toUpperCase()} )
+				.then(async (user) => {
+					if (!user) assert(false, `No user was found with email: ${email2.toUpperCase()}`);
+					await user.remove();
 				});
 		});
 
@@ -406,15 +410,12 @@ describe('Authentication', () => {
 				});
 		});
 
-		it('CLEAN: delete user (phone)', (done) => {
+		it('CLEAN: delete user (phone)', async () => {
 			let registration_data = gen_user_data();
-			request.delete('/auth/register')
-				.send({email: registration_data.email})
-				.expect(200)
-				.end((err, res) => {
-					if (err) return done(err);
-					assert(res.body.msg == 'deleted', `USER NOT DELETED. error message -> ${res.body.msg}`);
-					done();
+			await User.findOne({email:registration_data.email.toUpperCase()})
+				.then(async (user) => {
+					if (!user) assert(false, `No user was found with email: ${registration_data.email.toUpperCase()}`);
+					await user.remove();
 				});
 		});
 

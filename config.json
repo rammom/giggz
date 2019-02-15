@@ -7,7 +7,7 @@
 		"db_port": "27017",
 		"db_name": "Giggs",
 		"session_secret": "afh8d90q2iuk4jqbfnasd90o32hberfkaf7b3802t4b2ybqr0uidjba",
-		"testing": false
+		"authentication_enabled": true
 	},
 	"production": {
 		"protocol": "http",
@@ -16,7 +16,6 @@
 		"db_address": "localhost",
 		"db_port": "27017",
 		"db_name": "Giggs",
-		"session_secret": "afh8d90q2iuk4jqbfnasd90o32hberfkaf7b3802t4b2ybqr0uidjba",
-		"testing": true
+		"session_secret": "afh8d90q2iuk4jqbfnasd90o32hberfkaf7b3802t4b2ybqr0uidjba"
 	}
 }

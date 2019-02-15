@@ -96,18 +96,6 @@ const sendResponse = (res, body={}, msg=null, status=200) => {
 }
 
 /**
- * 	Move onto next if in development environment
- * 
- * @param {Express request object} req 
- * @param {Express response object} res 
- * @param {Express next object} next 
- */
-const isDevelopment = (req, res, next) => {
-	if (req.app.get('env') == 'development' || req.app.testing) next();
-	else next('Unauthorized');
-}
-
-/**
  * 	Check if current requesting user is authenticated
  * 	** Allows pass if in development environment **
  * 
@@ -116,7 +104,7 @@ const isDevelopment = (req, res, next) => {
  * @param {Express next object} next 
  */
 const isAuthenticated = (req, res, next) => {
-	if (req.app.get('env') == 'development' && !req.app.testing) next();
+	if (req.app.get('env') == 'development' && !req.app.authentication_enabled) next();
 	else if (req.user) next();
 	else next('Unauthorized');
 }
@@ -129,6 +117,5 @@ module.exports = {
 	comparePassword,
 	handleError,
 	sendResponse,
-	isDevelopment,
 	isAuthenticated,
 }
