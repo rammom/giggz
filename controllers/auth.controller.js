@@ -110,39 +110,8 @@ const logout = (req, res, next) => {
 	return sendResponse(res, "logged out");
 }
 
-/*
-	Delete a user
-	** Should only be called from tests or manually in dev development **
-*/
-const deleteUser = async (req, res, next) => {
-	if (req.app.get('env') != 'development' && !req.app.testing)
-		return sendResponse(res, 'Unauthorized', 401);
-
-	const email = req.body.email.toUpperCase();
-
-	let user_error = null;
-	let user = null;
-	await User.findOne({email})
-		.then( u => user = u )
-		.catch( err => user_error = err );
-	
-	if (user_error)
-		return handleError(res, user_error, 500);
-	if (!user)
-		return sendResponse(res, "no user found", 404);
-
-	await user.remove()
-		.catch(err => user_error = err );
-
-	if (user_error)
-		return handleError(res, user_error, 500);
-
-	return sendResponse(res, "deleted");
-}
-
 module.exports = {
 	register,
 	login,
 	logout,
-	deleteUser,
 }	
