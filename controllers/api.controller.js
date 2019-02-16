@@ -16,7 +16,7 @@ const index = {
 		return sendResponse(res, "ok");
 	},
 	authenticated: (req, res, next) => {
-		return sendResponse(res, "authenticated");		
+		return sendResponse(res, "authenticated");
 	}
 }
 
