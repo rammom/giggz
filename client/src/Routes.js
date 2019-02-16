@@ -4,18 +4,22 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 // Pages
 import PageNotFound from './pages/PageNotFound';
 import Home from './pages/Home';
-import UserDashboard from './pages/UserDashboard';
 
 class Routes extends Component {
 	render() {
 		return (
 			<React.Fragment>
 				<Switch>
+
 					<Route exact path='/home' component={Home} />
 					<Route exact path='/'>
 						<Redirect to='/home' />
 					</Route>
+
+
+
 					<Route component={PageNotFound}/>
+
 				</Switch>
 			</React.Fragment>
 		);
