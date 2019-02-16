@@ -53,7 +53,7 @@ let app = express();
 const config = (app.get('env') === 'development') 	
 				? require('./config.json').development
 				: require('./config.json').production;
-app.authentication_enabled = config.authentication_enabled;
+app.authentication_enabled = (app.get('env') === 'development') ? config.authentication_enabled : true;
 
 app.set('view engine', 'ejs');
 
