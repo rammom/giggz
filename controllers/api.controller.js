@@ -16,7 +16,7 @@ const index = {
 		return sendResponse(res, "ok");
 	},
 	authenticated: (req, res, next) => {
-		return sendResponse(res, "authenticated");		
+		return sendResponse(res, "authenticated");
 	}
 }
 
@@ -197,7 +197,16 @@ const store = {
 
 }
 
+const user = {
+	getAuthenticatedUser: async (req, res, next) => {
+		let user = req.user;
+		user.password = null;
+		sendResponse(res, {user});
+	}
+}
+
 module.exports = { 
 	index,
 	store,
+	user,
 }

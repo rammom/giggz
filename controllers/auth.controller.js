@@ -34,6 +34,8 @@ const register = async (req, res, next) => {
 	if (phone && !verify.isPhoneNumber(phone))
 		invalid_fields.push('phone');
 
+
+	console.log(invalid_fields);
 	if (invalid_fields.length != 0) 
 		return handleError(res, null, 400, "invalid fields", {invalid_fields});
 

@@ -27,7 +27,7 @@ const rmatch = (str, expression) => {
 	Checks if given string matches expected email format
 */
 const isEmail = (email) => {
-	let expression = /^[A-z0-9\.\_]+@[A-z0-9]+.[A-z]+$/g;
+	let expression = /^[A-z0-9\.\_]+@[A-z0-9]+\.[A-z]+$/g;
 	return rmatch(email, expression);
 }
 
