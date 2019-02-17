@@ -110,16 +110,6 @@ const isAuthenticated = (req, res, next) => {
 }
 
 
-const mochaAsync = (fn) => {
-	return async (done) => {
-		try {
-			await fn();
-			done();
-		} catch (err) {
-			done(err);
-		}
-	}
-}
 
 
 module.exports = {
@@ -130,5 +120,4 @@ module.exports = {
 	handleError,
 	sendResponse,
 	isAuthenticated,
-	mochaAsync,
 }

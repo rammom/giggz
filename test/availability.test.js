@@ -8,30 +8,29 @@ const Availability = require("../models/Availability");
 const ttm = require('../utils/utils').time_to_minutes;
 
 describe('Availability', () => {
+    const gen_time = () => ({
+        monday: [{ start: ttm(9), end: ttm(12) },{ start: ttm(13), end: ttm(17) }],
+        tuesday: [{ start: ttm(9), end: ttm(17) }],
+        wednesday: [{ start: ttm(9), end: ttm(17) }],
+        thursday: [{ start: ttm(9), end: ttm(17) }],
+        friday: [{ start: ttm(9), end: ttm(17) }],
+        saturday: [{ start: ttm(9), end: ttm(17) }],
+        sunday: [{ start: ttm(9), end: ttm(18) }]
+    });
 
+    
 	context('Model Functions', () => {
 		it('Subset with proper arguments', function(done) {
-            test_hours1 = {
-                monday: [{ start: ttm(9), end: ttm(17) }],
-                tuesday: [{ start: ttm(9), end: ttm(17) }],
-                wednesday: [{ start: ttm(9), end: ttm(17) }],
-                thursday: [{ start: ttm(9), end: ttm(17) }],
-                friday: [{ start: ttm(9), end: ttm(17) }],
-                saturday: [{ start: ttm(9), end: ttm(17) }],
-                sunday: [{ start: ttm(9), end: ttm(18) }],
-            }
-            test_hours2 = {
-                monday: [{ start: ttm(9), end: ttm(17) }],
-                tuesday: [{ start: ttm(9), end: ttm(17) }],
-                wednesday: [{ start: ttm(9), end: ttm(17) }],
-                thursday: [{ start: ttm(9), end: ttm(17) }],
-                friday: [{ start: ttm(9), end: ttm(17) }],
-                saturday: [{ start: ttm(9), end: ttm(17) }],
-                sunday: [{ start: ttm(9), end: ttm(17) }],
-            }
-            let test_availability1 = new Availability(test_hours1);
+            hours1 = gen_time();
 
-            test_availability1.isSubset(test_hours2)
+            hours2 = gen_time();
+
+            hours2.friday[0].start = ttm(10);
+            hours2.friday[0].end = ttm(15);
+
+            let availability1 = new Availability(hours1);
+
+            availability1.isSubset(hours2)
                 .then((res) => {
                     assert(res, `response expected to be "true", but received false.`);
                     done();
@@ -42,27 +41,15 @@ describe('Availability', () => {
         })
 
         it('Subset with bad arguments', function(done) {
-            test_hours1 = {
-                monday: [{ start: ttm(9), end: ttm(17) }],
-                tuesday: [{ start: ttm(9), end: ttm(17) }],
-                wednesday: [{ start: ttm(9), end: ttm(17) }],
-                thursday: [{ start: ttm(9), end: ttm(17) }],
-                friday: [{ start: ttm(9), end: ttm(17) }],
-                saturday: [{ start: ttm(9), end: ttm(17) }],
-                sunday: [{ start: ttm(9), end: ttm(18) }],
-            }
-            test_hours2 = {
-                monday: [{ start: ttm(9), end: ttm(17) }],
-                tuesday: [{ start: ttm(9), end: ttm(17) }],
-                wednesday: [{ start: ttm(9), end: ttm(17) }],
-                thursday: [{ start: ttm(9), end: ttm(17) }],
-                friday: [{ start: ttm(9), end: ttm(17) }],
-                saturday: [{ start: ttm(9), end: ttm(17) }],
-                sunday: [{ start: ttm(7), end: ttm(17) }],
-            }
-            let test_availability1 = new Availability(test_hours1);
+            hours1 = gen_time();
 
-            test_availability1.isSubset(test_hours2)
+            hours2 = gen_time();
+
+            hours2.friday[0].end = ttm(18);
+
+            let availability1 = new Availability(hours1);
+
+            availability1.isSubset(hours2)
                 .then((res) => {
                     assert(!res, `response expected to be "false", but received true.`);
                     done();

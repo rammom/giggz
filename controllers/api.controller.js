@@ -31,18 +31,23 @@ const employee = {
 				return handleError(res,null,400,"ERROR: employee id and availability hours required.");
 			}
 
+			if (!verify.hasProperties(hours, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']))
+				return handleError(res, null, 400, `ERROR: hours not formatted properly!`);	
+
 			let find_error = null;
 			let employee = null; //Checking if employee exists
 			await Employee.findById(employeeid)
 				.populate("store")
 				.then( e => employee = e )
 				.catch( err => find_error = err );
+			if (find_error){
+				return handleError(res, find_error, 500, "while finding employee");
+			}
 			if (!employee){
 				return sendResponse(res, "Employee not found");
 			}
 
-			if (!verify.hasProperties(hours, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']))
-				return handleError(res, null, 400, `ERROR: hours not formatted properly!`);			
+					
 
 
 			if(!employee.store.hours.isSubset(hours)){ //Makes sure availability fits store's
@@ -134,7 +139,7 @@ const store = {
 				.then( u => user = u )
 				.catch( err => find_error = err );
 			if (!user){
-				return sendResponse(res, "User not found");
+				return sendResponse(res, "User not found",400);
 			}
 			if (user.employee){ //Makes sure user isn't already employed
 				return sendResponse(res, "Failed to add employee!");
@@ -145,7 +150,7 @@ const store = {
 				.then( s => store = s )
 				.catch( err => find_error = err );
 			if (!store){
-				return sendResponse(res, "Store not found");
+				return sendResponse(res, "Store not found",404);
 			}
 	
 			let save_error = null; //Creating Employee
@@ -162,7 +167,8 @@ const store = {
 			if(save_error){
 				return handleError(res, save_error, 500, "while saving employee");
 			}
-	
+			
+
 			user.employee = new_employee._id; //Changing user status to reflect employment
 			await user.save()
 				.catch((err) => save_error = err);
@@ -170,14 +176,19 @@ const store = {
 				new_employee.remove(); //Remove employee if user employment can't be changed
 				return handleError(res, save_error, 500, "while saving employee");
 			}
-	
+
 			store.employees.push(new_employee._id); //Changing store employee directory
 			await store.save()
 				.catch((err) => save_error = err);
 			if (save_error){ 
+				user.employee._id = null;
+				user.save();
 				new_employee.remove(); //Remove employee if store employees can't be changed
 				return handleError(res, save_error, 500, "while saving employee");
 			}
+
+
+			
 	
 			return sendResponse(res, "Employee successfully created");
 		}
