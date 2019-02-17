@@ -110,6 +110,8 @@ const isAuthenticated = (req, res, next) => {
 }
 
 
+
+
 module.exports = {
 	time_to_minutes,
 	capitalize,

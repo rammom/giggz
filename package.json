@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-	"start": "node ./bin/www",
-    "test": "mocha"
+    "start": "node ./bin/www",
+    "test": "mocha --exit"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
