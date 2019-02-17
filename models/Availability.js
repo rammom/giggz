@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 
 let AvailabilitySchema = new Schema({
 	monday:		[{
@@ -34,6 +35,37 @@ let AvailabilitySchema = new Schema({
 	updatedAt: 	{ type: Date }
 });
 
+//Method used to check if a passed-in availability fits within time slot
+AvailabilitySchema.methods.isSubset = async function(availability) { 
+	const object = this;
+	const isSubset = await new Promise((resolve, reject) => {
+		let subset = true;
+		days.forEach((day) => {
+			
+			if (availability[day].length == 0){
+				return; //Skip if passed-in availability is empty
+			} 
+			if (availability[day].length > 0 && object[day].length == 0){
+				return resolve(false);
+			}
+			
+			availability[day].forEach((slot) => { //Iterate through passed-in daily hours
+				let valid = false; //Assume that subset is invalid
+				object[day].forEach((thisslot) =>{ //Iterating through own daily hours
+					if(slot.start >= thisslot.start && slot.end <= thisslot.end){
+						valid = true; //Flagging valid to true if found
+					}
+					return;
+				})
+				if (!valid){ //Ensures each slot for each day is valid
+					resolve(false);	//If one is invalid, raise the overall subset value to false
+				}
+			})
+		})
+		resolve(subset); //Return overall subset value
+	});
+	return isSubset;
+}
 AvailabilitySchema.pre('save', function(next) {
 
 	let datetime = new Date();
@@ -47,7 +79,7 @@ AvailabilitySchema.pre('save', function(next) {
 		> Each slot's start time should be before its end time
 		> A slot's start time should be after the previous slot's end time
 	*/
-	const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
 	days.forEach((day) => {
 		if (this[day].length == 0) return;
 		let slot_count = this[day].length;
