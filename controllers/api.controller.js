@@ -197,7 +197,16 @@ const store = {
 
 }
 
+const user = {
+	getAuthenticatedUser: async (req, res, next) => {
+		let user = req.user;
+		user.password = null;
+		sendResponse(res, {user});
+	}
+}
+
 module.exports = { 
 	index,
 	store,
+	user,
 }

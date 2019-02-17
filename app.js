@@ -46,6 +46,7 @@ passport.use(new LocalStrategy({
 const apiRouter = {
 	index: require('./routes/api.route'),
 	store: require('./routes/api.store.route'),
+	user: require('./routes/api.user.route')
 }
 const authRouter = require('./routes/auth.route');
 
@@ -96,6 +97,7 @@ passport.deserializeUser(function (id, done) {
 app.use('/auth', authRouter);
 app.use('/api', apiRouter.index);
 app.use('/api/store', apiRouter.store);
+app.use('/api/user', apiRouter.user);
 
 // catch 404 
 app.use(function(req, res, next) {
