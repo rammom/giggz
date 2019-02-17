@@ -22,15 +22,14 @@ describe('Availability', () => {
 	context('Model Functions', () => {
 		it('Subset with proper arguments', function(done) {
             hours1 = gen_time();
-
             hours2 = gen_time();
 
             hours2.friday[0].start = ttm(10);
             hours2.friday[0].end = ttm(15);
 
-            let availability1 = new Availability(hours1);
+            let availability = new Availability(hours1);
 
-            availability1.isSubset(hours2)
+            availability.isSubset(hours2)
                 .then((res) => {
                     assert(res, `response expected to be "true", but received false.`);
                     done();
@@ -42,14 +41,13 @@ describe('Availability', () => {
 
         it('Subset with bad arguments', function(done) {
             hours1 = gen_time();
-
             hours2 = gen_time();
 
             hours2.friday[0].end = ttm(18);
 
-            let availability1 = new Availability(hours1);
+            let availability = new Availability(hours1);
 
-            availability1.isSubset(hours2)
+            availability.isSubset(hours2)
                 .then((res) => {
                     assert(!res, `response expected to be "false", but received true.`);
                     done();
