@@ -41,7 +41,6 @@ AvailabilitySchema.methods.isSubset = async function(availability) {
 	const isSubset = await new Promise((resolve, reject) => {
 		let subset = true;
 		days.forEach((day) => {
-			
 			if (availability[day].length == 0){
 				return; //Skip if passed-in availability is empty
 			} 
@@ -70,7 +69,6 @@ AvailabilitySchema.methods.isSubset = async function(availability) {
 }
 
 AvailabilitySchema.pre('save', function(next) {
-
 	let datetime = new Date();
 	if (this.createdAt == null) this.createdAt = datetime;
 	this.updatedAt = datetime;
