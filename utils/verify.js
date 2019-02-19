@@ -36,7 +36,6 @@ const isEmail = (email) => {
 */
 const isValidPassword = (password) => {
 	let expression = /^[A-z0-9\.\_\!\?]+$/g;
-	console.log(rmatch(password, expression));
 	return rmatch(password, expression) && length(password, 8);
 }
 
