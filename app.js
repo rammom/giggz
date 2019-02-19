@@ -47,10 +47,14 @@ const apiRouter = {
 	index: require('./routes/api.route'),
 	store: require('./routes/api.store.route'),
 <<<<<<< HEAD
+<<<<<<< HEAD
 	user: require('./routes/api.user.route')
 =======
 	employee: require('./routes/api.employee.route'),
 >>>>>>> add/edit/get services, add/edit/get appointments
+=======
+	employee: require('./routes/api.employee.route'),
+>>>>>>> 8a0bb5c997d703322d7d6a6ea4f01bcd1fd47b06
 }
 const authRouter = require('./routes/auth.route');
 
@@ -102,10 +106,14 @@ app.use('/auth', authRouter);
 app.use('/api', apiRouter.index);
 app.use('/api/store', apiRouter.store);
 <<<<<<< HEAD
+<<<<<<< HEAD
 app.use('/api/user', apiRouter.user);
 =======
 app.use('/api/employee', apiRouter.employee);
 >>>>>>> add/edit/get services, add/edit/get appointments
+=======
+app.use('/api/employee', apiRouter.employee);
+>>>>>>> 8a0bb5c997d703322d7d6a6ea4f01bcd1fd47b06
 
 // catch 404 
 app.use(function(req, res, next) {

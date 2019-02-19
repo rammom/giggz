@@ -814,9 +814,6 @@ const user = {
 module.exports = { 
 	index,
 	store,
-<<<<<<< HEAD
 	user,
-=======
 	employee,
->>>>>>> add/edit/get services, add/edit/get appointments
 }
