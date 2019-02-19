@@ -9,6 +9,7 @@ let EmployeeSchema = new Schema({
     hours:		{ type: ObjectId, ref: 'Availability' },
     store:		{ type: ObjectId, ref: 'Store', required: true },
 	services:	[{ type: ObjectId, ref: 'Service' }],
+	appointments:	[{ type: ObjectId, ref: 'Appointment'}],
 	role:		{ type: String, enum: roles, required: true },
 	createdAt:	{ type: Date },
 	updatedAt:	{ type: Date }
