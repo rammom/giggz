@@ -19,6 +19,12 @@ EmployeeSchema.pre('save', function (next) {
 	let datetime = new Date();
 	if (this.createdAt == null) this.createdAt = datetime;
 	this.updatedAt = datetime;
+	if(!this.services){
+		this.services = [];
+	}
+	if(!this.appointments){
+		this.appointments = [];
+	}
 	next();
 });
 

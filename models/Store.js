@@ -25,6 +25,12 @@ StoreSchema.pre('save', function(next) {
 	let datetime = new Date();
 	if (this.createdAt == null) this.createdAt = datetime;
 	this.updatedAt = datetime;
+	if(!this.employees){
+		this.employees = [];
+	}
+	if(!this.services){
+		this.services = [];
+	}
 	next();
 });
 

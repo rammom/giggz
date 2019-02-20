@@ -23,7 +23,9 @@ const index = {
 
 
 const employee = {
+	//employee.availability
 	availability:{
+		//employee.availability.get
 		get: async(req,res,next) =>{
 			const employeeid = req.body.employeeid;
 			
@@ -41,12 +43,12 @@ const employee = {
 				return handleError(res, find_error, 500, "while finding employee");
 			}
 			if (!employee){
-				return sendResponse(res, "Employee not found");
+				return sendResponse(res, "Employee not found",404);
 			}
 
 			const availability_id = employee.hours;
 			if (!availability_id){
-				return sendResponse(res,null,"null", 400);
+				return sendResponse(res,null,"null", 200);
 			}
 
 			let availability = null;
@@ -63,6 +65,7 @@ const employee = {
 			
 
 		},
+		//employee.availability.update
 		update: async(req, res, next) =>{
 			const employeeid = req.body.employeeid;
 			const hours = req.body.hours;
@@ -87,10 +90,10 @@ const employee = {
 				return handleError(res, find_error, 500, "while finding employee");
 			}
 			if (!employee){
-				return sendResponse(res, "Employee not found");
+				return sendResponse(res, "Employee not found",404);
 			}
 			if(!employee.store.hours.isSubset(hours)){ //Makes sure availability fits store's
-				return sendResponse(res, "Availability outside store hours!");
+				return sendResponse(res, "Availability outside store hours!",400);
 			}
 			//Creating Availability
 			let availability = new Availability(hours);
@@ -112,7 +115,9 @@ const employee = {
 			return sendResponse(res,{availabilityid:availability._id},"Availability updated successfully");
 		}
 	},
+	//employee.service
 	service:{
+		//employee.service.add
 		add: async(req, res, next) => {
 			const employeeid = req.body.employeeid;
 			const serviceid = req.body.serviceid;
@@ -165,6 +170,7 @@ const employee = {
 			return sendResponse(res, "Service successfully created");
 		
 		},
+		//employee.service.get
 		get: async(req,res,next) =>{
 			const employeeid = req.body.employeeid;
 			
@@ -185,11 +191,12 @@ const employee = {
 			}
 
 			if (!employee){
-				return sendResponse(res, "Employee not found");
+				return sendResponse(res, "Employee not found",404);
 			}
 
 			return sendResponse(res,{services: employee.services},400);
 		},
+		//employee.service.delete
 		delete: async(req,res,next) =>{
 			const employeeid = req.body.employeeid;
 			const serviceid = req.body.serviceid;
@@ -208,17 +215,6 @@ const employee = {
 			}
 			if (!employee){
 				return sendResponse(res, "Employee not found",404);
-			}
-
-			let service = null;
-			await Service.findById(serviceid)
-				.then( s => service = s )
-				.catch( err => find_error = err );
-			if (find_error){
-				return handleError(res, find_error, 500, "while finding service");
-			}
-			if (!service){
-				return sendResponse(res, "Service not found",404);
 			}
 
 			//Removing a service if the serviceid matches
@@ -245,7 +241,9 @@ const employee = {
 			return sendResponse(res, "Service successfully deleted");
 		}
 	},
+	//employee.appointment
 	appointment:{
+		//employee.appointment.add
 		add: async(req,res,next) => {
 			let employeeid = req.body.employeeid;
 			let serviceid = req.body.serviceid;
@@ -320,7 +318,7 @@ const employee = {
 				a_start = ttm(a.datetime.getHours(),a.datetime.getMinutes());
 				a_end = a_start + a.service.length;
 
-				if(a.datetime.getDate() != date.getDate() || a.datetime.getMonth() != date.getMonth() || a.datetime.getDate() != date.getDate()){
+				if(a.datetime.getDate() != date.getDate() || a.datetime.getMonth() != date.getMonth() || a.datetime.getFullYear() != date.getFullYear()){
 					return;
 				}
 				
@@ -345,10 +343,10 @@ const employee = {
 			}
 
 			appointment = new Appointment({
-				store: employee.store,
-				service: service,
-				employee:employee,
-				datetime:date
+				store: employee.store._id,
+				service: service._id,
+				employee: employee._id,
+				datetime: date
 			});
 
 
@@ -370,6 +368,7 @@ const employee = {
 
 			return sendResponse(res,{appointmentid:appointment._id},"Appointment successfully added!");
 		},
+		//employee.appointment.get
 		get: async(req,res,next) =>{
 			const employeeid = req.body.employeeid;
 			
@@ -393,17 +392,17 @@ const employee = {
 				return sendResponse(res, "Employee not found");
 			}
 
-			return sendResponse(res,{appointments: employee.appointments},400);
+			return sendResponse(res,{appointments: employee.appointments},200);
 		},
+		//employee.appointment.update
 		update: async(req,res,next) => {
-			let employeeid = req.body.employeeid;
 			let serviceid = req.body.serviceid;
 			let appointmentid = req.body.appointmentid;
 			let date = req.body.date;
 			let now = new Date();
 
-			if (!employeeid || !serviceid || !date || !appointmentid)
-			return handleError(res, null, 400, `ERROR: Employee ID, Service ID, Appointment ID, and date is required!`);
+			if (!serviceid || !date || !appointmentid)
+			return handleError(res, null, 400, `ERROR: Service ID, Appointment ID, and date is required!`);
 
 			date = new Date(date);
 			if (!(date instanceof Date) || isNaN(date) || date < now){
@@ -422,8 +421,8 @@ const employee = {
 				return sendResponse(res, "Appointment not found",404);
 			}
 
+			let employeeid = appointment.employee;
 			let employee = null; //Checking if employee exists
-			
 			await Employee.findById(employeeid)
 				.populate('hours')
 				.populate({
@@ -510,7 +509,7 @@ const employee = {
 
 
 			appointment.datetime = date;
-			appointment.service = service;
+			appointment.service = service._id;
 
 			let save_error = null;
 			await appointment.save() //Making sure appointment is saved properly
@@ -532,6 +531,7 @@ const store = {
 	/**
 	 * 		Create a new store.
 	 */
+	//store.create
 	create: async (req, res, next) => {
 
 		const name = req.body.name;
@@ -576,8 +576,9 @@ const store = {
 		return sendResponse(res, {store}, "store created");
 
 	},
-
+	//store.service
 	service:{
+		//store.service.add
 		add: async(req, res, next) =>{
 			const name = req.body.name;
 			const price = req.body.price;
@@ -585,7 +586,7 @@ const store = {
 			const storeid = req.body.storeid;
 
 			if (!name || !price || !length || !storeid)
-			return handleError(res, null, 400, `ERROR: name, price and length is required!`);
+			return handleError(res, null, 400, `ERROR: name, price and length, and Store ID is required!`);
 
 			let store = null; //Checking if store exists
 			let find_error = null;
@@ -635,6 +636,7 @@ const store = {
 			
 			return sendResponse(res, {serviceid: service._id},"Service successfully created",200);
 		},
+		//store.service.get
 		get: async(req,res,next) =>{
 			const storeid = req.body.storeid;
 			
@@ -660,6 +662,7 @@ const store = {
 
 			return sendResponse(res,{services: store.services},400);
 		},
+		//store.service.delete
 		delete: async(req,res,next) =>{
 			const storeid = req.body.storeid;
 			const serviceid = req.body.serviceid;
@@ -686,9 +689,13 @@ const store = {
 				return sendResponse(res, "Store has no services",404);
 			}
 
+			if(!store.services.map(sid=>sid.toString()).includes(serviceid)){
+				return sendResponse(res, "Store does not offer this service",404);
+			}
+
+
 			let service = null;
 			await Service.findByIdAndDelete(serviceid)
-				
 				.then( s => service = s )
 				.catch( err => find_error = err );
 			if (!service){
@@ -696,42 +703,37 @@ const store = {
 			}
 
 			//Removing a service if the serviceid matches
-			let deleted = null;
+
 			let save_error = null;
-			let employees = [];
 
-			if(store.services.map(sid=>sid.toString()).includes(serviceid)){
-				if(store.employees){
-					store.employees.forEach(async emp =>{
-						if(emp.services.map(sid=>sid.toString()).includes(serviceid)){
-							await emp.services.remove(serviceid);
-							await emp.save() //Making sure employee saves properly
-								.catch((err) => save_error = err);
-							if(save_error){
-								return handleError(res, save_error, 500, "while saving employee services");
-							}
-						}
-					})
-				}
-				await store.services.remove(serviceid);
-				deleted = true;
-				await store.save() //Making sure store saves properly
-					.catch((err) => save_error = err);
-				if(save_error){
-					return handleError(res, save_error, 500, "while saving store");
-				}
-				await service.remove();
+			if(store.employees){
+				store.employees.forEach(async emp =>{
+					if(emp.services.map(sid=>sid.toString()).includes(serviceid)){
+						await emp.services.remove(serviceid);
+						await emp.save() //Making sure employee saves properly
+							.catch((err) => save_error = err);
+					}
+				})
 			}
 
-			if(!deleted){
-				return sendResponse(res, "Store does not offer this service",404);
+			if(save_error){
+				return handleError(res, save_error, 500, "while saving employee services");
 			}
+
+			await store.services.remove(serviceid);
+			await store.save() //Making sure store saves properly
+				.catch((err) => save_error = err);
+			if(save_error){
+				return handleError(res, save_error, 500, "while saving store");
+			}
+			await service.remove();
 
 			return sendResponse(res, "Service successfully deleted");
 		}
 	},
-
+	//store.employee
 	employee: {
+		//store.employee.add
 		add: async (req, res, next) =>{
 			const email = req.body.email.toUpperCase();
 			const storeid = req.body.storeid;

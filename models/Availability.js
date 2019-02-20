@@ -72,6 +72,7 @@ AvailabilitySchema.pre('save', function(next) {
 	let datetime = new Date();
 	if (this.createdAt == null) this.createdAt = datetime;
 	this.updatedAt = datetime;
+
 	
 	// moose: Make this check async to avoid blocking issues.. This implementation is VERY NAIVE!!!
 	/* 
@@ -82,6 +83,7 @@ AvailabilitySchema.pre('save', function(next) {
 	*/
 
 	days.forEach((day) => {
+		if(!this[day]) this[day] = [];
 		if (this[day].length == 0) return;
 		let slot_count = this[day].length;
 
