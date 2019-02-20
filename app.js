@@ -101,9 +101,13 @@ app.use('/api/store', apiRouter.store);
 app.use('/api/user', apiRouter.user);
 app.use('/api/employee', apiRouter.employee);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> conflict
+=======
+
+>>>>>>> 9fe8b7b4663c9a1b5991442349a4a88e43c44f56
 
 // catch 404 
 app.use(function(req, res, next) {

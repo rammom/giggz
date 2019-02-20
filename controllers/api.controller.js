@@ -25,7 +25,6 @@ const index = {
 const employee = {
 	//employee.availability
 	availability:{
-		//employee.availability.get
 		get: async(req,res,next) =>{
 			const employeeid = req.body.employeeid;
 			
