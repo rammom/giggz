@@ -101,7 +101,9 @@ const register = async (req, res, next) => {
 	Login user
 */
 const login = (req, res, next) => {
-	return sendResponse(res, "authenticated");
+	let user = req.user;
+	user.password = null;
+	return sendResponse(res, {user}, "authenticated");
 }
 
 /*
