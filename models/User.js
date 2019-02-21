@@ -10,6 +10,7 @@ let UserSchema = new Schema({
 	phone:			{ type: String },
 	appointments:	[{ type: ObjectId, ref: 'Appointment'}],
 	employee:		{ type: ObjectId, ref: 'Employee' },
+	image:			{ type: String, default: "https://s3.us-east-2.amazonaws.com/giggs/default_pp.jpg", required: true },
 	createdAt:		{ type: Date },
 	updatedAt: 		{ type: Date }
 });
