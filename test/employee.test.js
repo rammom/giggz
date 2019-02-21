@@ -22,7 +22,7 @@ let USER, STORE, EMPLOYEE, AVAILABILITY, APPOINTMENT;
 
 describe('Employee', () => {
     after(async () => {
-        
+
         await USER.remove();
         await EMPLOYEE.remove();
         await STORE.remove();

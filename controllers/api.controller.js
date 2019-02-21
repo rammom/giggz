@@ -361,7 +361,7 @@ const employee = {
 			await employee.save() //Making sure employee is saved properly
 				.catch((err) => save_error = err);
 			if(save_error){
-				appointment.delete();
+				appointment.remove();
 				return handleError(res, save_error, 500, "while saving employee");
 			}
 
