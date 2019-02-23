@@ -550,12 +550,15 @@ const store = {
 		let error = null;
 		if (!req.params.slug) return handleError(res, null, 400, "slug required");
 		await Store.findOne({"slug": req.params.slug})
-			.populate(['hours', 'services'])
+			.populate('hours')
 			.populate({
 				path: 'employees',
-				populate: {
+				populate: [{
 					path: 'user'
-				}
+				},
+				{
+					path: 'services'
+				}]
 			})
 			.then(s => store = s)
 			.catch(e => error = e);
@@ -563,6 +566,14 @@ const store = {
 			return handleError(res, error, 500);
 		if (!store)
 			return handleError(res, null, 404, "no store found");
+
+		// format data
+		store.employees.map(e => {
+			e.user.firstname = e.user.firstname.substring(0,1) + e.user.firstname.substring(1).toLowerCase()
+			e.user.lastname = e.user.lastname.substring(0, 1) + e.user.lastname.substring(1).toLowerCase()
+			return e;
+		})
+
 		return sendResponse(res, {store});
 	},
 	//store.create
