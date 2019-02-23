@@ -527,15 +527,54 @@ const employee = {
 */
 const store = {
 
-	/**
-	 * 		Create a new store.
-	 */
+	//store.getAll
+	getBunch: async (req, res, next) => {
+		let stores = [];
+		let error = null;
+		await Store.find()
+			.limit(20)
+			.populate({
+				path: 'employees',
+				populate: {
+					path: 'user'
+				}
+			})
+			.then(s => stores = s)
+			.catch(e => error = e);
+		if (error)
+			return handleError(res, error, 500);
+		return sendResponse(res, {stores});
+	},
+	//store.getBySlug
+	getBySlug: async (req, res, next) => {
+		let store = null;
+		let error = null;
+		if (!req.params.slug) return handleError(res, null, 400, "slug required");
+		await Store.findOne({"slug": req.params.slug})
+			.populate(['hours', 'services'])
+			.populate({
+				path: 'employees',
+				populate: {
+					path: 'user'
+				}
+			})
+			.then(s => store = s)
+			.catch(e => error = e);
+		if (error)
+			return handleError(res, error, 500);
+		if (!store)
+			return handleError(res, null, 404, "no store found");
+		return sendResponse(res, {store});
+	},
 	//store.create
 	create: async (req, res, next) => {
 
 		const name = req.body.name;
 		const address = req.body.address;
 		const hours = req.body.hours;
+
+		let slug = req.body.name.toLowerCase();
+		slug = slug.split(' ').join('-');
 
 		// check given data
 		if (!name || !address || !hours)
@@ -546,6 +585,26 @@ const store = {
 
 		if (!verify.hasProperties(hours, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']))
 			return handleError(res, null, 400, `ERROR: hours not formatted properly!`);			
+
+		// check if slug is unique
+		let stores = null;
+		let error = null;
+		let nextNum = "";
+		await Store.find({ "slug": { $regex: new RegExp(`^${slug}[0-9]*$`, "g") } })
+			.then(s => stores = s)
+			.catch(e => error = e);
+
+		if (error) return handleError(res, error, 500);
+		if (stores.length > 0){
+			let num = 0;
+			stores.forEach(store => {
+				let n = parseInt(store.substring(store.length - 1))
+				if (n && n > num) num = n;
+			});
+			nextNum += num+1;
+		}
+		slug += nextNum;
+		console.log(slug);
 
 		// create Availability
 		let availability = new Availability(hours);
@@ -559,6 +618,7 @@ const store = {
 
 		let store = new Store({
 			name: name,
+			slug: slug,
 			address: address,
 			hours: availability._id,
 			employees: [],

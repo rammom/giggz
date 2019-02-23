@@ -7,6 +7,8 @@ const apiController = require('../controllers/api.controller');
 const { isAuthenticated } = require('../utils/utils');
 
 router.post('/', isAuthenticated, apiController.store.create);
+router.get('/bunch', apiController.store.getBunch);
+router.get('/:slug', apiController.store.getBySlug);
 
 router.post('/employee', isAuthenticated, apiController.store.employee.add);
 

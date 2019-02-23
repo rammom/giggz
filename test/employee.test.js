@@ -22,7 +22,7 @@ let USER, STORE, EMPLOYEE, AVAILABILITY, APPOINTMENT;
 
 describe('Employee', () => {
     after(async () => {
-
+		
         await USER.remove();
         await EMPLOYEE.remove();
         await STORE.remove();
@@ -42,7 +42,7 @@ describe('Employee', () => {
 	});
 
     const gen_store_data = () => ({
-        name: "Giggs Cuts",
+		name: "Giggs Cuts",
         address: {
             street: "2110 Wyandotte St",
             city: "Windsor",
@@ -121,7 +121,7 @@ describe('Employee', () => {
             
             assert(user, `User not created!`);
             if (find_error)
-                return assert(false, `${find_error}`);
+                assert(false, `${find_error}`);
 
 
             let cookie;
@@ -136,21 +136,23 @@ describe('Employee', () => {
                 });
 
 
-            let store_data = gen_store_data();
+			let store_data = gen_store_data();
+			let store = null;
             await request.post(store_route)
                 .set('Cookie', cookie)
                 .send(store_data)
                 .expect(200)
 				.then(function(res) {
+					store = res.store;
                 })
                 .catch((err) => {
                     assert(false, `${err}`);
                 });
             
-			let store = null;
-            await Store.findOne({name:store_data.name}) //Finding store
-				.then( s => store = s )
-                .catch( err => find_error = err );
+			// let store = null;
+            // await Store.findOne({slug:store_data.slug}) //Finding store
+			// 	.then( s => store = s )
+            //     .catch( err => find_error = err );
 
             assert(store != null, `Store not created!`);
             if (find_error)
