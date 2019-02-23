@@ -35,7 +35,6 @@ const register = async (req, res, next) => {
 		invalid_fields.push('phone');
 
 
-	console.log(invalid_fields);
 	if (invalid_fields.length != 0) 
 		return handleError(res, null, 400, "invalid fields", {invalid_fields});
 
@@ -94,7 +93,7 @@ const register = async (req, res, next) => {
 		return handleError(res, saveError, 500);
 
 	// success
-	return sendResponse(res, "registered");
+	return sendResponse(res, {user}, "registered");
 }
 
 /*

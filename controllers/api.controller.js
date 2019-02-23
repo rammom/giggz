@@ -121,7 +121,6 @@ const employee = {
 			const employeeid = req.body.employeeid;
 			const serviceid = req.body.serviceid;
 
-
 			if (!employeeid || !serviceid)
 			return handleError(res, null, 400, `ERROR: Employee ID and Service ID is required!`);
 
@@ -575,6 +574,7 @@ const store = {
 
 		let slug = req.body.name.toLowerCase();
 		slug = slug.split(' ').join('-');
+		slug = slug.split("'").join('');
 
 		// check given data
 		if (!name || !address || !hours)
@@ -693,7 +693,7 @@ const store = {
 			}
 			
 			
-			return sendResponse(res, {serviceid: service._id},"Service successfully created",200);
+			return sendResponse(res, {service},"Service successfully created",200);
 		},
 		//store.service.get
 		get: async(req,res,next) =>{
@@ -821,7 +821,7 @@ const store = {
 			}
 	
 			let save_error = null; //Creating Employee
-			let new_employee = new Employee(
+			let employee = new Employee(
 				{
 					user:user._id,
 					store:store._id,
@@ -829,35 +829,35 @@ const store = {
 				}
 			);
 	
-			await new_employee.save() //Making sure employee saves properly
+			await employee.save() //Making sure employee saves properly
 				.catch((err) => save_error = err);
 			if(save_error){
 				return handleError(res, save_error, 500, "while saving employee");
 			}
 			
 
-			user.employee = new_employee._id; //Changing user status to reflect employment
+			user.employee = employee._id; //Changing user status to reflect employment
 			await user.save()
 				.catch((err) => save_error = err);
 			if (save_error){ 
-				new_employee.remove(); //Remove employee if user employment can't be changed
+				employee.remove(); //Remove employee if user employment can't be changed
 				return handleError(res, save_error, 500, "while saving employee");
 			}
 
-			store.employees.push(new_employee._id); //Changing store employee directory
+			store.employees.push(employee._id); //Changing store employee directory
 			await store.save()
 				.catch((err) => save_error = err);
 			if (save_error){ 
 				user.employee._id = null;
 				user.save();
-				new_employee.remove(); //Remove employee if store employees can't be changed
+				employee.remove(); //Remove employee if store employees can't be changed
 				return handleError(res, save_error, 500, "while saving employee");
 			}
 
 
 			
 	
-			return sendResponse(res, "Employee successfully created");
+			return sendResponse(res, {employee},"Employee successfully created");
 		}
 	}
 		
