@@ -22,7 +22,7 @@ let USER, STORE, EMPLOYEE, AVAILABILITY, APPOINTMENT;
 
 describe('Employee', () => {
     after(async () => {
-		/*
+		
         await USER.remove();
         await EMPLOYEE.remove();
         await STORE.remove();
@@ -30,7 +30,7 @@ describe('Employee', () => {
         await Availability.findByIdAndDelete(EMPLOYEE.hours);
         await Service.findByIdAndDelete(SERVICE);
         await Appointment.findByIdAndDelete(APPOINTMENT);
-        */
+        
     })
     const gen_user_data = () => ({
         email: "employeetest@giggs.ca",
