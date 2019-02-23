@@ -527,9 +527,45 @@ const employee = {
 */
 const store = {
 
-	/**
-	 * 		Create a new store.
-	 */
+	//store.getAll
+	getBunch: async (req, res, next) => {
+		let stores = [];
+		let error = null;
+		await Store.find()
+			.limit(20)
+			.populate({
+				path: 'employees',
+				populate: {
+					path: 'user'
+				}
+			})
+			.then(s => stores = s)
+			.catch(e => error = e);
+		if (error)
+			return handleError(res, error, 500);
+		return sendResponse(res, {stores});
+	},
+	//store.getBySlug
+	getBySlug: async (req, res, next) => {
+		let store = null;
+		let error = null;
+		if (!req.params.slug) return handleError(res, null, 400, "slug required");
+		await Store.findOne({"slug": req.params.slug})
+			.populate(['hours', 'services'])
+			.populate({
+				path: 'employees',
+				populate: {
+					path: 'user'
+				}
+			})
+			.then(s => store = s)
+			.catch(e => error = e);
+		if (error)
+			return handleError(res, error, 500);
+		if (!store)
+			return handleError(res, null, 404, "no store found");
+		return sendResponse(res, {store});
+	},
 	//store.create
 	create: async (req, res, next) => {
 

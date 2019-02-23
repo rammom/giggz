@@ -22,7 +22,7 @@ let USER, STORE, EMPLOYEE, AVAILABILITY, APPOINTMENT;
 
 describe('Employee', () => {
     after(async () => {
-
+		
         await USER.remove();
         await EMPLOYEE.remove();
         await STORE.remove();
@@ -42,7 +42,8 @@ describe('Employee', () => {
 	});
 
     const gen_store_data = () => ({
-        name: "Giggs Cuts",
+		name: "Giggs Cuts",
+		slug: "giggs-cuts",
         address: {
             street: "2110 Wyandotte St",
             city: "Windsor",
