@@ -573,6 +573,9 @@ const store = {
 		const address = req.body.address;
 		const hours = req.body.hours;
 
+		let slug = req.body.name.toLowerCase();
+		slug = slug.split(' ').join('-');
+
 		// check given data
 		if (!name || !address || !hours)
 			return handleError(res, null, 400, `ERROR: name, address and hours are required!`);
@@ -582,6 +585,26 @@ const store = {
 
 		if (!verify.hasProperties(hours, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']))
 			return handleError(res, null, 400, `ERROR: hours not formatted properly!`);			
+
+		// check if slug is unique
+		let stores = null;
+		let error = null;
+		let nextNum = "";
+		await Store.find({ "slug": { $regex: new RegExp(`^${slug}[0-9]*$`, "g") } })
+			.then(s => stores = s)
+			.catch(e => error = e);
+
+		if (error) return handleError(res, error, 500);
+		if (stores.length > 0){
+			let num = 0;
+			stores.forEach(store => {
+				let n = parseInt(store.substring(store.length - 1))
+				if (n && n > num) num = n;
+			});
+			nextNum += num+1;
+		}
+		slug += nextNum;
+		console.log(slug);
 
 		// create Availability
 		let availability = new Availability(hours);
@@ -595,6 +618,7 @@ const store = {
 
 		let store = new Store({
 			name: name,
+			slug: slug,
 			address: address,
 			hours: availability._id,
 			employees: [],
