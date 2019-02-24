@@ -582,6 +582,7 @@ const store = {
 		const name = req.body.name;
 		const address = req.body.address;
 		const hours = req.body.hours;
+		const description = req.body.description;
 
 		let slug = req.body.name.toLowerCase();
 		slug = slug.split(' ').join('-');
@@ -596,6 +597,8 @@ const store = {
 
 		if (!verify.hasProperties(hours, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']))
 			return handleError(res, null, 400, `ERROR: hours not formatted properly!`);			
+
+		if (typeof description != 'string') description = null;
 
 		// check if slug is unique
 		let stores = null;
@@ -615,7 +618,6 @@ const store = {
 			nextNum += num+1;
 		}
 		slug += nextNum;
-		console.log(slug);
 
 		// create Availability
 		let availability = new Availability(hours);
@@ -629,6 +631,7 @@ const store = {
 
 		let store = new Store({
 			name: name,
+			description: description,
 			slug: slug,
 			address: address,
 			hours: availability._id,
