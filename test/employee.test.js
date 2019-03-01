@@ -22,7 +22,7 @@ let USER, STORE, EMPLOYEE, AVAILABILITY, APPOINTMENT;
 
 describe('Employee', () => {
     after(async () => {
-		
+		/*
         await USER.remove();
         await EMPLOYEE.remove();
         await STORE.remove();
@@ -30,7 +30,7 @@ describe('Employee', () => {
         await Availability.findByIdAndDelete(EMPLOYEE.hours);
         await Service.findByIdAndDelete(SERVICE);
         await Appointment.findByIdAndDelete(APPOINTMENT);
-        
+        */
     })
     const gen_user_data = () => ({
         email: "employeetest@giggs.ca",
@@ -143,11 +143,11 @@ describe('Employee', () => {
                 .send(store_data)
                 .expect(200)
 				.then(function(res) {
-					store = res.store;
+					store = res.body.store;
                 })
                 .catch((err) => {
                     assert(false, `${err}`);
-                });
+				});
             
 			// let store = null;
             // await Store.findOne({slug:store_data.slug}) //Finding store
