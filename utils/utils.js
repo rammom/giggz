@@ -86,10 +86,11 @@ const handleError = (res, err, status, msg="ERROR", other_fields={}) => {
  * @param {Response status code} status 
  */
 const sendResponse = (res, body={}, msg=null, status=200) => {
+	if (typeof msg == 'number') status = msg;
 	if (typeof body == 'string' && typeof msg != 'string') msg = body;
 	if (typeof body != 'object') body = {};
 	if (typeof msg != 'string') msg="ok";
-	if (typeof status != 'number') status=200;
+	//if (typeof status != 'number') status=200;
 	body.msg = (body.msg) ? body.msg : msg;
 	body.status = status;
 	return res.status(status).json(body);
