@@ -38,9 +38,6 @@ const register = async (req, res, next) => {
 	if (invalid_fields.length != 0) 
 		return handleError(res, null, 400, "invalid fields", {invalid_fields});
 
-	// format attributes
-	[email, firstname, lastname] = utils.capitalize([email, firstname, lastname]);
-
 	// check for duplicates in db
 	let duplicate_fields = [];
 	let findError = null;

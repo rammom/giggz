@@ -284,9 +284,6 @@ const employee = {
 			let serviceid = req.body.serviceid;
 			let date = req.body.date;
 			let now = new Date();
-			console.log(employeeid);
-			console.log(serviceid);
-			console.log(date);
 
 			if (!employeeid || !serviceid || !date)
 			return handleError(res, null, 400, `ERROR: Employee ID, Service ID, and date is required!`);
@@ -388,7 +385,6 @@ const employee = {
 				datetime: date
 			});
 
-			console.log(appointment);
 			let save_error = null;
 			await appointment.save() //Making sure appointment is saved properly
 				.catch((err) => save_error = err);
