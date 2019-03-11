@@ -48,6 +48,7 @@ const apiRouter = {
 	store: require('./routes/api.store.route'),
 	user: require('./routes/api.user.route'),
 	employee: require('./routes/api.employee.route'),
+	appointment: require('./routes/api.appointment.route.js'),
 }
 const authRouter = require('./routes/auth.route');
 
@@ -100,6 +101,7 @@ app.use('/api', apiRouter.index);
 app.use('/api/store', apiRouter.store);
 app.use('/api/user', apiRouter.user);
 app.use('/api/employee', apiRouter.employee);
+app.use('/api/appointment', apiRouter.appointment);
 
 
 // catch 404 

@@ -21,6 +21,43 @@ const index = {
 	}
 }
 
+const appointment = {
+	//appointment.get
+	get: async (req, res, next) => {
+		const appointmentid = req.params.appointmentid;
+		console.log(appointmentid);
+		if (!appointmentid)
+			return handleError(res, null, 404);
+		
+		// get and populate the requested appointment
+		let error = null;
+		let appointment = null;
+		await Appointment.findById(appointmentid)
+			.populate('store')
+			.populate('service')
+			.populate({
+				path: 'employee',
+				populate: {
+					path: 'user'
+				}
+			})
+			.populate('user')
+			.then(appt => appointment = appt)
+			.catch(err => error = err)
+		if (error) handleError(res, error, 500);
+		if (!appointment) handleError(res, null, 404);
+
+		// verify appointment belongs to current user
+		if (appointment.user._id.toString() != req.user._id.toString())
+			return handleError(res, null, 401);
+
+		appointment.user = appointment.user.formatNames();
+		appointment.employee.user = appointment.employee.user.formatNames();
+
+		return sendResponse(res, {appointment});
+	}
+}
+
 
 const employee = {
 	//employee.availability
@@ -340,13 +377,13 @@ const employee = {
 				return handleError(res, null, 400, `ERROR: Appointment conflict!`);
 			}
 
-			appointment = new Appointment({
+			let appointment = new Appointment({
+				user: req.user._id,
 				store: employee.store._id,
 				service: service._id,
 				employee: employee._id,
 				datetime: date
 			});
-
 
 			let save_error = null;
 			await appointment.save() //Making sure appointment is saved properly
@@ -364,7 +401,7 @@ const employee = {
 				return handleError(res, save_error, 500, "while saving employee");
 			}
 
-			return sendResponse(res,{appointmentid:appointment._id},"Appointment successfully added!");
+			return sendResponse(res, {appointment});
 		},
 		//employee.appointment.get
 		get: async(req,res,next) =>{
@@ -534,9 +571,9 @@ const store = {
 			.limit(20)
 			.populate({
 				path: 'employees',
-				populate: {
+				populate: [{
 					path: 'user'
-				}
+				}]
 			})
 			.then(s => stores = s)
 			.catch(e => error = e);
@@ -558,6 +595,15 @@ const store = {
 				},
 				{
 					path: 'services'
+				},
+				{
+					path: 'hours'
+				},
+				{
+					path: 'appointments',
+					populate: {
+						path: 'service'
+					}
 				}]
 			})
 			.then(s => store = s)
@@ -571,6 +617,7 @@ const store = {
 		store.employees.map(e => {
 			e.user.firstname = e.user.firstname.substring(0,1) + e.user.firstname.substring(1).toLowerCase()
 			e.user.lastname = e.user.lastname.substring(0, 1) + e.user.lastname.substring(1).toLowerCase()
+			e.appointments = e.appointments.filter( appt => !appt.done() );
 			return e;
 		})
 
@@ -891,4 +938,5 @@ module.exports = {
 	store,
 	user,
 	employee,
+	appointment,
 }

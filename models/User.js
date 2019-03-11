@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const utils = require('../utils/utils');
 
 let UserSchema = new Schema({
 	email:			{ type: String, required: true },
@@ -15,10 +16,18 @@ let UserSchema = new Schema({
 	updatedAt: 		{ type: Date }
 });
 
+UserSchema.methods.formatNames = function () {
+	let user = this;
+	user.firstname = user.firstname[0] + user.firstname.substring(1).toLowerCase();
+	user.lastname = user.lastname[0] + user.lastname.substring(1).toLowerCase();
+	return user;
+}
+
 UserSchema.pre('save', function (next) {
 	let datetime = new Date();
 	if (this.createdAt == null) this.createdAt = datetime;
 	this.updatedAt = datetime;
+	[this.email, this.firstname, this.lastname] = utils.capitalize([this.email, this.firstname, this.lastname]);
 	next();
 });
 

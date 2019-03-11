@@ -9,7 +9,8 @@ let StoreSchema = new Schema({
             		street:     { type: String, required: true },
                 	city:       { type: String, required: true },
                 	state:      { type: String, required: true },
-                	country:    { type: String, required: true }
+					country:    { type: String, required: true },
+					phone: 		{ type: String }
                 },
    hours:       { type: ObjectId, ref: 'Availability', required: true },
    employees:	[{ type: ObjectId, ref: 'Employee' }],
