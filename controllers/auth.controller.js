@@ -102,6 +102,7 @@ const login = (req, res, next) => {
 	return sendResponse(res, {user}, "authenticated");
 }
 
+
 /*
 	Logout user
 */
@@ -110,8 +111,18 @@ const logout = (req, res, next) => {
 	return sendResponse(res, "logged out");
 }
 
+/*
+	Check Authentication
+*/
+const checkAuthentication = (req, res, next) => {
+	if (req.user)
+		return sendResponse(res, {authenticated: true});
+	return sendResponse(res, {authenticated: false});
+}
+
 module.exports = {
 	register,
 	login,
 	logout,
+	checkAuthentication,
 }	

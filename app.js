@@ -23,7 +23,7 @@ redis_client.on('error', (err) => {
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
-passport.use(new LocalStrategy({
+passport.use('user-local', new LocalStrategy({
 		usernameField: 'email',
 		passwordField: 'password',
 	},
@@ -37,6 +37,30 @@ passport.use(new LocalStrategy({
 				if (!await utils.comparePassword(password, user.password)){
 					return done(null, false, { message: "Bad Credentials" });
 				}
+				console.log(user);
+				return done(null, user);
+			})
+			.catch(err => done(err));
+	}
+));
+
+passport.use('employee-local', new LocalStrategy({
+	usernameField: 'email',
+	passwordField: 'password',
+},
+	async (email, password, done) => {
+		email = email.toUpperCase();
+		if (!verify.isEmail(email)) return done(null, false, { message: "Bad Credentials" });
+		await User.findOne({ email })
+			.then(async (user) => {
+				if (!user)
+					return done(null, false, { message: "Bad Credentials" });
+				if (!user.employee)
+					return done(null, false, { message: "Not Employee" });
+				if (!await utils.comparePassword(password, user.password)) {
+					return done(null, false, { message: "Bad Credentials" });
+				}
+
 				return done(null, user);
 			})
 			.catch(err => done(err));

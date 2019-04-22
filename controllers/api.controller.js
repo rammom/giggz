@@ -60,6 +60,42 @@ const appointment = {
 
 
 const employee = {
+	//employee.get
+	get: async (req, res, next) => {
+		let employeeid = req.user.employee;
+		if (!employeeid)
+			return handleError(res, null, 404);
+		
+		let employee = null;
+		let error = null;
+		await Employee.findById(employeeid)
+			.populate('hours')
+			.populate('services')
+			.populate({
+				path: 'appointments',
+				populate: [{
+					path: 'service'
+				},
+				{
+					path: 'user'
+				}]
+			})
+			.then(e => employee = e)
+			.catch(err => error = err);
+
+		if (error) return handleError(res, error, 500);
+		if (!employee) return handleError(res, null, 404);
+
+		employee.appointments.map(appt => {
+			if (appt.user) {
+				appt.user = appt.user.formatNames();
+				appt.user.password = null;
+			}
+			return appt;
+		})
+
+		return sendResponse(res, {employee});
+	},
 	//employee.availability
 	availability:{
 		get: async(req,res,next) =>{
