@@ -3,6 +3,7 @@ const utils = require('../utils/utils');
 const handleError = utils.handleError;
 const sendResponse = utils.sendResponse;
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 /*
 	Register a new user
@@ -97,32 +98,64 @@ const register = async (req, res, next) => {
 	Login user
 */
 const login = (req, res, next) => {
-	let user = req.user;
-	user.password = null;
-	return sendResponse(res, {user}, "authenticated");
-}
+	const email = req.body.email.toUpperCase();
+	const password = req.body.password;
+	if (!verify.isEmail(email)) return sendResponse(res, {}, "Bad Credentials", 400);
+	User.findOne({ email })
+		.then(async (user) => {
 
+			if (!user)
+				return sendResponse(res, {}, "Bad Credentials", 401);
+			if (!await utils.comparePassword(password, user.password))
+				return sendResponse(res, {}, "Bad Credentials", 401);
+
+			user.password = null;
+			const payload = { user };
+			const token = jwt.sign(payload, process.env.SECRET_OR_KEY);
+
+			return sendResponse(res, {token});
+		})
+		.catch(err => handleError(res, err, 500));
+}
 
 /*
-	Logout user
+	Login employee
 */
-const logout = (req, res, next) => {
-	req.logout();
-	return sendResponse(res, "logged out");
+const employee_login = (req, res, next) => {
+	const email = req.body.email.toUpperCase();
+	const password = req.body.password;
+	if (!verify.isEmail(email)) return sendResponse(res, {}, "Bad Credentials", 400);
+	User.findOne({ email })
+		.then(async (user) => {
+
+			// check if user and employee
+			if (!user || !user.employee)
+				return sendResponse(res, {}, "Bad Credentials", 401);
+			if (!await utils.comparePassword(password, user.password)) 
+				return sendResponse(res, {}, "Bad Credentials", 401);
+
+			user.password = null;
+			const payload = { user };
+			const token = jwt.sign(payload, process.env.SECRET_OR_KEY);
+
+			return sendResponse(res, { token });
+		})
+		.catch(err => handleError(res, err, 500));
 }
 
-/*
-	Check Authentication
-*/
-const checkAuthentication = (req, res, next) => {
-	if (req.user)
-		return sendResponse(res, {authenticated: true});
-	return sendResponse(res, {authenticated: false});
-}
+
+// /*
+// 	Logout user
+// */
+// const logout = (req, res, next) => {
+// 	req.logout();
+// 	return sendResponse(res, "logged out");
+// }
+
 
 module.exports = {
 	register,
 	login,
-	logout,
-	checkAuthentication,
+	employee_login,
+	//logout,
 }	

@@ -5,10 +5,10 @@
 const express = require('express');
 const router = express.Router();
 const apiController = require('../controllers/api.controller');
-const { isAuthenticated } = require('../utils/utils');
+const passport = require('passport');
 
 
-router.get('/:appointmentid', isAuthenticated, apiController.appointment.get);
+router.get('/:appointmentid', passport.authenticate('jwt-user'), apiController.appointment.get);
 
 
 module.exports = router;

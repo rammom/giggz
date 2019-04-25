@@ -96,22 +96,6 @@ const sendResponse = (res, body={}, msg=null, status=200) => {
 	return res.status(status).json(body);
 }
 
-/**
- * 	Check if current requesting user is authenticated
- * 	** Allows pass if in development environment **
- * 
- * @param {Express request object} req 
- * @param {Express response object} res 
- * @param {Express next object} next 
- */
-const isAuthenticated = (req, res, next) => {
-	if (req.app.get('env') == 'development' && !req.app.authentication_enabled) next();
-	else if (req.user) next();
-	else next('Unauthorized');
-}
-
-
-
 
 module.exports = {
 	time_to_minutes,
@@ -120,5 +104,4 @@ module.exports = {
 	comparePassword,
 	handleError,
 	sendResponse,
-	isAuthenticated,
 }

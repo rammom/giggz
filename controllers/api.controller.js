@@ -316,6 +316,7 @@ const employee = {
 	appointment:{
 		//employee.appointment.add
 		add: async(req,res,next) => {
+			console.log('hjere');
 			let employeeid = req.body.employeeid;
 			let serviceid = req.body.serviceid;
 			let date = req.body.date;
