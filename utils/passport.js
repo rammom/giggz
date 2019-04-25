@@ -1,56 +1,37 @@
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
 const User = require('../models/User');
-const verify = require('./verify');
-const utils = require('./utils');
+const passport = require('passport');
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+const JwtOptions = {
+	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+	secretOrKey: process.env.SECRET_OR_KEY
+}
 
-passport.use('user-login', new LocalStrategy({
-	usernameField: 'email',
-	passwordField: 'password',
-},
-	async (email, password, done) => {
-		email = email.toUpperCase();
-		if (!verify.isEmail(email)) return done(null, false, { message: "Bad Credentials" });
-		await User.findOne({ email })
-			.then(async (user) => {
-				if (!user)
-					return done(null, false, { message: "Bad Credentials" });
-				console.log(await utils.comparePassword(password, user.password));
-				if (!await utils.comparePassword(password, user.password)) {
-					return done(null, false, { message: "Bad Credentials" });
-				}
-				console.log(user);
+
+passport.use('jwt-user', new JwtStrategy(
+	JwtOptions,
+	async (jwt_payload, done) => {
+		await User.findById(jwt_payload.id)
+			.then(user => {
+				if (!user) return done(null, false, { message: "Bad payload" })
 				return done(null, user);
 			})
 			.catch(err => done(err));
 	}
 ));
 
-passport.use('employee-login', new LocalStrategy({
-	usernameField: 'email',
-	passwordField: 'password',
-},
-	async (email, password, done) => {
-		email = email.toUpperCase();
-		if (!verify.isEmail(email)) return done(null, false, { message: "Bad Credentials" });
-		await User.findOne({ email })
-			.then(async (user) => {
-				if (!user)
-					return done(null, false, { message: "Bad Credentials" });
-				if (!user.employee)
-					return done(null, false, { message: "Not Employee" });
-				if (!await utils.comparePassword(password, user.password)) {
-					return done(null, false, { message: "Bad Credentials" });
-				}
-
+passport.use('jwt-employee', new JwtStrategy(
+	JwtOptions,
+	async (jwt_payload, done) => {
+		await User.findById(jwt_payload.id)
+			.then(user => {
+				if (!user) return done(null, false, { message: "Bad payload" });
+				if (!user.employee) return done(null, false, { message: "Bad payload" });
 				return done(null, user);
 			})
 			.catch(err => done(err));
 	}
 ));
-
-
-
 
 
 passport.serializeUser(function (user, done) {

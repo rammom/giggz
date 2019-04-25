@@ -2,13 +2,8 @@
 	IMPORTS
 */
 const express = require('express');
-const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
-const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
-const redis = require("redis");
-const redis_client = redis.createClient();
 const bodyParser = require('body-parser');
 const utils = require('./utils/utils');
 const passport = require('passport');
@@ -25,21 +20,6 @@ const config = (app.get('env') === 'development')
 	: require('./config.json').production;
 app.authentication_enabled = (app.get('env') === 'development') ? config.authentication_enabled : true;
 app.set('view engine', 'ejs');
-
-
-
-
-
-/*
-	CONNECT TO REDIS
-*/
-redis_client.on('connect', () => {
-	if (app.get('env') === 'development') console.log(`* Connected to redis client`);
-});
-redis_client.on('error', (err) => {
-	if (app.get('env') === 'development') console.log(`* Failed to connect to redis client ${err}`);
-});
-
 
 
 
@@ -84,19 +64,11 @@ const authRouter = require('./routes/auth.route');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(session({
-	store: new RedisStore({ redis_client }),
-	secret: config.session_secret, 
-	resave: true,
-	saveUninitialized: false
-}));
 
 require('./utils/passport');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
-app.use(passport.session());
 
 
 
