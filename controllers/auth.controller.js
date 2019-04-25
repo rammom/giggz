@@ -103,12 +103,16 @@ const login = (req, res, next) => {
 	if (!verify.isEmail(email)) return sendResponse(res, {}, "Bad Credentials", 400);
 	User.findOne({ email })
 		.then(async (user) => {
+
 			if (!user)
 				return sendResponse(res, {}, "Bad Credentials", 401);
 			if (!await utils.comparePassword(password, user.password))
 				return sendResponse(res, {}, "Bad Credentials", 401);
-			const payload = { id: user._id };
+
+			user.password = null;
+			const payload = { user };
 			const token = jwt.sign(payload, process.env.SECRET_OR_KEY);
+
 			return sendResponse(res, {token});
 		})
 		.catch(err => handleError(res, err, 500));
@@ -130,7 +134,8 @@ const employee_login = (req, res, next) => {
 			if (!await utils.comparePassword(password, user.password)) 
 				return sendResponse(res, {}, "Bad Credentials", 401);
 
-			const payload = { id: user._id };
+			user.password = null;
+			const payload = { user };
 			const token = jwt.sign(payload, process.env.SECRET_OR_KEY);
 
 			return sendResponse(res, { token });

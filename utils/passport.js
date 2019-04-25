@@ -11,9 +11,10 @@ const JwtOptions = {
 passport.use('jwt-user', new JwtStrategy(
 	JwtOptions,
 	async (jwt_payload, done) => {
-		await User.findById(jwt_payload.id)
+		await User.findById(jwt_payload.user._id)
 			.then(user => {
 				if (!user) return done(null, false, { message: "Bad payload" })
+				console.log(user);
 				return done(null, user);
 			})
 			.catch(err => done(err));
@@ -23,7 +24,7 @@ passport.use('jwt-user', new JwtStrategy(
 passport.use('jwt-employee', new JwtStrategy(
 	JwtOptions,
 	async (jwt_payload, done) => {
-		await User.findById(jwt_payload.id)
+		await User.findById(jwt_payload.user._id)
 			.then(user => {
 				if (!user) return done(null, false, { message: "Bad payload" });
 				if (!user.employee) return done(null, false, { message: "Bad payload" });
