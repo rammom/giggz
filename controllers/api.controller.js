@@ -22,7 +22,7 @@ const index = {
 }
 
 const appointment = {
-	//appointment.get
+	// appointment.get
 	get: async (req, res, next) => {
 		const appointmentid = req.params.appointmentid;
 		console.log(appointmentid);
@@ -55,6 +55,66 @@ const appointment = {
 		appointment.employee.user = appointment.employee.user.formatNames();
 
 		return sendResponse(res, {appointment});
+	},
+	// appointment.getUserAppointments
+	getUserAppointments: async (req, res, next) => {
+		let appointments = null;
+		let error = null;
+		await Appointment.find(
+			{
+				user: req.user._id, 
+			}
+		)
+		.populate("store")
+		.populate("service")
+		.populate({ path: "employee", populate: { path: "user" } })
+		.then(appts => appointments = appts)
+		.catch(err => error = err);
+
+		if (error) return handleError(res, error, 500);
+		return sendResponse(res, {appointments});
+	},
+	// appointment.delete
+	delete: async (req, res, next) => {
+		let appointment_id = req.params.appointmentid;
+		let appointment = null;
+		let error = null;
+		await Appointment.findById(appointment_id)
+			.populate("user")
+			.populate("employee")
+			.then(appt => appointment = appt)
+			.catch(err => error = err);
+		if (error) return handleError(res, error, 500);
+		if (!appointment) return sendResponse(res, {}, "invalid appointment id", 404);
+		if (appointment.user._id.toString() != req.user._id.toString() && appointment.employee._id.toString() != req.user._id.toString()) return sendResponse(res, {}, "Unauthorized", 401);
+		if (new Date(appointment.datetime) - new Date() <= 0) return sendResponse(res, {}, "Appointment date already passed", 400);
+
+		appointment.user.appointments.splice(appointment.user.appointments.indexOf(appointment._id), 1);
+		appointment.employee.appointments.splice(appointment.employee.appointments.indexOf(appointment._id), 1);
+
+		await appointment.user.save()
+			.catch(err => error = err);
+		if (error) return handleError(res, error, 500);
+
+		await appointment.employee.save()
+			.catch(err => {
+				appointment.user.appointments.push(appointment._id);
+				appointment.user.save();
+				error = err;
+			})
+		if (error) return handleError(res, error, 500);		
+
+		await appointment.remove()
+			.catch(err => {
+				appointment.user.appointments.push(appointment._id);
+				appointment.user.save();
+				appointment.employee.appointments.push(appointment._id);
+				appointment.employee.save();
+				error = err;
+			});
+		if (error) return handleError(res, error, 500);		
+
+		return sendResponse(res, {}, "removed", 200);
 	}
 }
 

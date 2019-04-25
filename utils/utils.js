@@ -71,7 +71,6 @@ const comparePassword = async (password, hash) => {
  * @param {Baseline object to build response on} other_fields 
  */
 const handleError = (res, err, status, msg="ERROR", other_fields={}) => {
-	console.log(err);
 	other_fields.msg = msg;
 	other_fields.err = err;
 	other_fields.status = status;

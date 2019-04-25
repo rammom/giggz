@@ -11,7 +11,6 @@ const JwtOptions = {
 passport.use('jwt-user', new JwtStrategy(
 	JwtOptions,
 	async (jwt_payload, done) => {
-		console.log(jwt_payload);
 		await User.findById(jwt_payload.user._id)
 			.then(user => {
 				if (!user) return done(null, false, { message: "Bad payload" })
