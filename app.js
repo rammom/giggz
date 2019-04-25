@@ -72,8 +72,6 @@ app.use(passport.initialize());
 
 
 
-
-
 /*
 	HANDLE ROUTES
 */

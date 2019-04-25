@@ -14,7 +14,6 @@ passport.use('jwt-user', new JwtStrategy(
 		await User.findById(jwt_payload.user._id)
 			.then(user => {
 				if (!user) return done(null, false, { message: "Bad payload" })
-				console.log(user);
 				return done(null, user);
 			})
 			.catch(err => done(err));
