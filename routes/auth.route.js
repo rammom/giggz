@@ -8,10 +8,8 @@ const passport = require('passport');
 const { isAuthenticated } = require('../utils/utils');
 
 router.post('/register', authController.register);
-router.post('/login', passport.authenticate('user-local'), authController.login);
-router.post('/employee-login', passport.authenticate('employee-local'), authController.login);
-
-router.post('/checkAuthentication', passport.authenticate('user-local'), authController.checkAuthentication);
+router.post('/login', passport.authenticate('user-login'), authController.login);
+router.post('/employee-login', passport.authenticate('employee-login'), authController.login);
 
 router.get('/logout', isAuthenticated, authController.logout);
 

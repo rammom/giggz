@@ -4,7 +4,7 @@ const User = require('../models/User');
 const verify = require('./verify');
 const utils = require('./utils');
 
-passport.use('user-local', new LocalStrategy({
+passport.use('user-login', new LocalStrategy({
 	usernameField: 'email',
 	passwordField: 'password',
 },
@@ -26,7 +26,7 @@ passport.use('user-local', new LocalStrategy({
 	}
 ));
 
-passport.use('employee-local', new LocalStrategy({
+passport.use('employee-login', new LocalStrategy({
 	usernameField: 'email',
 	passwordField: 'password',
 },
