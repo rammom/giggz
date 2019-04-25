@@ -1,3 +1,6 @@
+/*
+	IMPORTS
+*/
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -10,6 +13,26 @@ const bodyParser = require('body-parser');
 const utils = require('./utils/utils');
 const passport = require('passport');
 
+
+
+
+/*
+	CONFIGURE APP
+*/
+let app = express();
+const config = (app.get('env') === 'development')
+	? require('./config.json').development
+	: require('./config.json').production;
+app.authentication_enabled = (app.get('env') === 'development') ? config.authentication_enabled : true;
+app.set('view engine', 'ejs');
+
+
+
+
+
+/*
+	CONNECT TO REDIS
+*/
 redis_client.on('connect', () => {
 	if (app.get('env') === 'development') console.log(`* Connected to redis client`);
 });
@@ -17,6 +40,31 @@ redis_client.on('error', (err) => {
 	if (app.get('env') === 'development') console.log(`* Failed to connect to redis client ${err}`);
 });
 
+
+
+
+
+/*
+	CONNECT TO MONGODB
+*/
+const mongo = {
+	ip: config.db_address,
+	port: config.db_port,
+	name: config.db_name,
+}
+mongoose.connect(`mongodb://${mongo.ip}:${mongo.port}/${mongo.name}`, { useNewUrlParser: true })
+	.then(
+		() => { if (app.get('env') === 'development') console.log(`* Connected to mongodb database (${mongo.name}) at ${mongo.ip}:${mongo.port}`); },	// success
+		() => { if (app.get('env') === 'development') console.log(`* Failed to connect to mongodb database (${mongo.name}) at ${mongo.ip}:${mongo.port}`); } 	// fail
+	);
+
+
+
+
+
+/*
+	ROUTERS
+*/
 const apiRouter = {
 	index: require('./routes/api.route'),
 	store: require('./routes/api.store.route'),
@@ -26,25 +74,13 @@ const apiRouter = {
 }
 const authRouter = require('./routes/auth.route');
 
-let app = express();
-const config = (app.get('env') === 'development') 	
-				? require('./config.json').development
-				: require('./config.json').production;
-app.authentication_enabled = (app.get('env') === 'development') ? config.authentication_enabled : true;
 
-app.set('view engine', 'ejs');
 
-const mongo = {
-	ip: config.db_address,
-	port: config.db_port,
-	name: config.db_name,
-}
-mongoose.connect(`mongodb://${mongo.ip}:${mongo.port}/${mongo.name}`, { useNewUrlParser: true })
-		.then(
-			() => { if (app.get('env') === 'development') console.log(`* Connected to mongodb database (${mongo.name}) at ${mongo.ip}:${mongo.port}`); },	// success
-			() => { if (app.get('env') === 'development') console.log(`* Failed to connect to mongodb database (${mongo.name}) at ${mongo.ip}:${mongo.port}`); } 	// fail
-		);
 
+
+/*
+	MORE MIDDLEWARE & PASSPORT STUFF
+*/
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -62,6 +98,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
+
+
+/*
+	HANDLE ROUTES
+*/
 app.use('/auth', authRouter);
 app.use('/api', apiRouter.index);
 app.use('/api/store', apiRouter.store);
@@ -69,6 +112,13 @@ app.use('/api/user', apiRouter.user);
 app.use('/api/employee', apiRouter.employee);
 app.use('/api/appointment', apiRouter.appointment);
 
+
+
+
+
+/*
+	HANDLE ERRORS
+*/
 
 // catch 404 
 app.use(function(req, res, next) {
