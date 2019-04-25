@@ -422,20 +422,37 @@ const employee = {
 				datetime: date
 			});
 
-			let save_error = null;
+			let error = null;
 			await appointment.save() //Making sure appointment is saved properly
-				.catch((err) => save_error = err);
-			if(save_error){
-				return handleError(res, save_error, 500, "while saving appointment");
+				.catch((err) => error = err);
+			if(error){
+				return handleError(res, error, 500, "while saving appointment");
 			}
 			
-			employee.appointments.push(appointment);
+			let user = null;
+			await User.findById(req.user._id)
+				.then(usr => user = usr)
+				.catch(err => error = err)
+			if (error) handleError(res, error, 500);
+			if (!user) sendResponse(res, {}, "not authorized", 401);
+
+			employee.appointments.push(appointment._id);
+			user.appointments.push(appointment._id);
 
 			await employee.save() //Making sure employee is saved properly
-				.catch((err) => save_error = err);
-			if(save_error){
+				.catch((err) => error = err);
+			if(error){
 				appointment.remove();
-				return handleError(res, save_error, 500, "while saving employee");
+				return handleError(res, error, 500, "while saving employee");
+			}
+
+			await user.save()
+				.catch(err => error = err)
+			if (error){
+				appointment.remove();
+				employee.appointments.splice(employee.indexOf(appointment._id), 1);
+				employee.save();
+				return handleError(res, error, 500);
 			}
 
 			return sendResponse(res, {appointment});
@@ -963,10 +980,35 @@ const store = {
 }
 
 const user = {
-	getAuthenticatedUser: async (req, res, next) => {
+	getAuthenticatedUser: (req, res, next) => {
 		let user = req.user;
 		user.password = null;
 		sendResponse(res, {user});
+	},
+	getDetailedUser: async (req, res, next) => {
+		if (!req.user._id) return sendResponse(res, {}, "unauthorized", 401);
+		await User.findById(req.user._id)
+			.populate({
+				path: "appointments",
+				populate: [
+					{
+						path: "store",
+					},
+					{
+						path: "service"
+					}
+				]
+			})
+			.populate({
+				path: "employee"
+			})
+			.then(user => {
+				console.log(user);
+				if (!user) return sendResponse(res, {}, "no user found", 404);
+				user.password = null;
+				return sendResponse(res, {user});
+			})
+			.catch(err => handleError(res, err));
 	}
 }
 
