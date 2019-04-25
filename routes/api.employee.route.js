@@ -7,6 +7,8 @@ const router = express.Router();
 const apiController = require('../controllers/api.controller');
 const { isAuthenticated } = require('../utils/utils');
 
+router.get('/', isAuthenticated, apiController.employee.get);
+
 router.put('/availability', isAuthenticated, apiController.employee.availability.update);
 router.get('/availability', isAuthenticated, apiController.employee.availability.get);
 
