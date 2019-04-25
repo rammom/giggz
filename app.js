@@ -1,6 +1,4 @@
-const createError = require('http-errors');
 const express = require('express');
-const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
@@ -9,9 +7,8 @@ const RedisStore = require('connect-redis')(session);
 const redis = require("redis");
 const redis_client = redis.createClient();
 const bodyParser = require('body-parser');
-const User = require('./models/User');
 const utils = require('./utils/utils');
-const verify = require('./utils/verify');
+const passport = require('passport');
 
 redis_client.on('connect', () => {
 	if (app.get('env') === 'development') console.log(`* Connected to redis client`);
@@ -19,53 +16,6 @@ redis_client.on('connect', () => {
 redis_client.on('error', (err) => {
 	if (app.get('env') === 'development') console.log(`* Failed to connect to redis client ${err}`);
 });
-
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-
-passport.use('user-local', new LocalStrategy({
-		usernameField: 'email',
-		passwordField: 'password',
-	},
-	async (email, password, done) => {
-		email = email.toUpperCase();
-		if (!verify.isEmail(email)) return done(null, false, { message: "Bad Credentials" });
-		await User.findOne({email})
-			.then(async (user) => {
-				if (!user)
-					return done(null, false, { message: "Bad Credentials" });
-				if (!await utils.comparePassword(password, user.password)){
-					return done(null, false, { message: "Bad Credentials" });
-				}
-				console.log(user);
-				return done(null, user);
-			})
-			.catch(err => done(err));
-	}
-));
-
-passport.use('employee-local', new LocalStrategy({
-	usernameField: 'email',
-	passwordField: 'password',
-},
-	async (email, password, done) => {
-		email = email.toUpperCase();
-		if (!verify.isEmail(email)) return done(null, false, { message: "Bad Credentials" });
-		await User.findOne({ email })
-			.then(async (user) => {
-				if (!user)
-					return done(null, false, { message: "Bad Credentials" });
-				if (!user.employee)
-					return done(null, false, { message: "Not Employee" });
-				if (!await utils.comparePassword(password, user.password)) {
-					return done(null, false, { message: "Bad Credentials" });
-				}
-
-				return done(null, user);
-			})
-			.catch(err => done(err));
-	}
-));
 
 const apiRouter = {
 	index: require('./routes/api.route'),
@@ -106,19 +56,11 @@ app.use(session({
 	saveUninitialized: false
 }));
 
+require('./utils/passport');
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
-
-passport.serializeUser(function (user, done) {
-	done(null, user.id);
-});
-
-passport.deserializeUser(function (id, done) {
-	User.findById(id, function (err, user) {
-		done(err, user);
-	});
-});
 
 app.use('/auth', authRouter);
 app.use('/api', apiRouter.index);
