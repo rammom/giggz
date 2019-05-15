@@ -205,14 +205,7 @@ describe('Employee', () => {
             });
 
             haircut_data.serviceid = haircutid;
-            await request.post(service_employee_route)
-                .send(haircut_data)
-                .expect(200)
-                .then(function(res) {
-                })
-                .catch((err) => {
-                    assert(false, `${err}`);
-            });
+            
             
             appointment_data = {
                 serviceid:haircutid,

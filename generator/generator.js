@@ -23,13 +23,6 @@ const gen_user_data = () => ({
 });
 
 const gen_store_data = () => ({
-    name: "Giggs Cuts",
-    address: {
-        street: "2110 Wyandotte St",
-        city: "Windsor",
-        state: "Ontario",
-        country: "Canada"
-    },
     description: "Lorem ipsum dolor sit amet, eu cum omnis eirmod argumentum, \
     dolorem senserit eloquentiam in mei, ad alienum dissentias per. \
     Inani veniam ceteros ei nam, ne quas rationibus delicatissimi vix.",
@@ -98,6 +91,39 @@ store_names = [
     "Leo's Family Diner"
 ];
 
+store_addresses = [
+    {
+        street: '2110 Wyandotte St',
+        city: 'Windsor',
+        state: 'Ontario',
+        country: 'Canada'
+    },
+    {
+        street: '401 Sunset Ave',
+        city: 'Windsor',
+        state: 'Ontario',
+        country: 'Canada'
+    },
+    {
+        street: '2629 Fleming Crt',
+        city: 'Windsor',
+        state: 'Ontario',
+        country: 'Canada'
+    },
+    {
+        street: '540 Janette Ave',
+        city: 'Windsor',
+        state: 'Ontario',
+        country: 'Canada'
+    },
+    {
+        street: '3363 Bloomfield Rd',
+        city: 'Windsor',
+        state: 'Ontario',
+        country: 'Canada'
+    },
+]
+
 service_names = [
     'Haircut',
     'Shave',
@@ -116,6 +142,7 @@ const appointment_route = '/api/employee/appointment';
 
 
 const main = async() => {
+    
     let users = [];
     for(let i = 0; i < names.length; i++){
         registration_data = gen_user_data();
@@ -132,13 +159,14 @@ const main = async() => {
                 console.log(err);
             })
     }
-
+    
     let stores = [];
     let services = [];
     let k = 0;
     for(let i = 0; i < store_names.length; i++){
         store_data = gen_store_data();
         store_data.name = store_names[i];
+        store_data.address = store_addresses[i];
         await request.post(store_route)
             .send(store_data)
             .then(function(res) {
@@ -147,7 +175,7 @@ const main = async() => {
             .catch((err) => {
                 console.log(err);
             });
-
+        
         for(let s = 0; s < service_names.length; s++){
             service_data = gen_service_data();
             service_data.name = service_names[s];
@@ -188,7 +216,6 @@ const main = async() => {
                     serviceid: services[i*(store_names.length) + e]._id,
                     employeeid: employee._id,
                 };
-                console.log(employee_service_data);
     
                 await request.post(service_employee_route)
                     .send(employee_service_data)
@@ -201,6 +228,7 @@ const main = async() => {
             
         }
         k += i + 1;
+        
     }
     
     process.exit(0);

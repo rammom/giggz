@@ -7,7 +7,11 @@ const Availability = require('../models/Availability');
 const ttm = require('../utils/utils').time_to_minutes;
 const handleError = require('../utils/utils').handleError;
 const sendResponse = require('../utils/utils').sendResponse;
+const distance = require('../utils/utils').distance;
 const verify = require('../utils/verify');
+
+const request = require('request-promise');
+const googleAPI_Key = "AIzaSyDk-ajlF-VYrDHvb1VxuY62XnHDkVwSDvk";
 
 /*
 	Check status of app
@@ -526,12 +530,19 @@ const employee = {
 */
 const store = {
 
-	//store.getAll
-	getBunch: async (req, res, next) => {
+	//store.getByLocation
+	getByLocation: async (req, res, next) => {
 		let stores = [];
 		let error = null;
+		let lat = req.query.lat;
+		let lng = req.query.lng;
+		let range = req.query.range;
+
+		if (!lat || !lng || !range){
+			return handleError(res, null, 400, "Error: Latitude, longitude, and range required!");
+		}
+
 		await Store.find()
-			.limit(20)
 			.populate({
 				path: 'employees',
 				populate: {
@@ -540,9 +551,22 @@ const store = {
 			})
 			.then(s => stores = s)
 			.catch(e => error = e);
+		
+		let nearbyStores = [];
+		for(let i = 0; i < stores.length; i++){
+			stores[i]._doc.distance = distance(lat,lng,stores[i].address.lat,stores[i].address.lng);
+			if (stores[i]._doc.distance <= range){
+				nearbyStores.push(stores[i]);
+			}
+		}
+		nearbyStores.sort((a,b) => {
+			return a._doc.distance - b._doc.distance;
+		})
+
+		//return subset
 		if (error)
 			return handleError(res, error, 500);
-		return sendResponse(res, {stores});
+		return sendResponse(res, {stores:nearbyStores});
 	},
 	//store.getBySlug
 	getBySlug: async (req, res, next) => {
@@ -591,14 +615,17 @@ const store = {
 		// check given data
 		if (!name || !address || !hours)
 			return handleError(res, null, 400, `ERROR: name, address and hours are required!`);
-
 		if (!verify.hasProperties(address, ['street', 'city', 'state', 'country']))
 			return handleError(res, null, 400, `ERROR: address not formatted properly!`);
 
 		if (!verify.hasProperties(hours, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']))
 			return handleError(res, null, 400, `ERROR: hours not formatted properly!`);			
 
-		if (typeof description != 'string') description = null;
+		if (description != null){
+			if(typeof description != 'string'){
+				description = null;
+			}
+		}
 
 		// check if slug is unique
 		let stores = null;
@@ -612,7 +639,8 @@ const store = {
 		if (stores.length > 0){
 			let num = 0;
 			stores.forEach(store => {
-				let n = parseInt(store.substring(store.length - 1))
+				let n = parseInt(store.slug.replace(slug,''));
+				//let n = parseInt(store.slug.substring(store.slug.length - 1))
 				if (n && n > num) num = n;
 			});
 			nextNum += num+1;
@@ -629,6 +657,35 @@ const store = {
 		if (availabilityError)
 			return handleError(res, availabilityError, 500, "while saving availablity");
 
+		
+		
+		//Making an API request to Google to retrieve latitude and longitude (required)
+		let googleError = false;
+		let google_slug = address.street.split(' ').join('+') + ",+" + address.city.split(' ').join('+') + ",+" + address.state.split(' ').join('+') + ",+" + address.country.split(' ').join('+');
+		
+		const requestOptions = {
+			url: `https://maps.googleapis.com/maps/api/geocode/json?address=${google_slug}&key=${googleAPI_Key}`,
+			json: true,
+		}
+		
+		await request(requestOptions)
+			.then(res => {
+				console.log(res.results[0].geometry);
+				if(res.results[0].geometry == null){
+					googleError = true;
+					return;
+				}
+				address.lat = res.results[0].geometry.location.lat;
+				address.lng = res.results[0].geometry.location.lng;	
+			});
+
+		
+		if(googleError){
+			return handleError(res, null, 400, `ERROR: Address is not valid (Google API)!`);
+		}
+		console.log('end');
+		//console.log(address);
+		
 		let store = new Store({
 			name: name,
 			description: description,
@@ -711,7 +768,7 @@ const store = {
 		},
 		//store.service.get
 		get: async(req,res,next) =>{
-			const storeid = req.body.storeid;
+			const storeid = req.params.storeid;
 			
 			if(!storeid){
 				return handleError(res,null,400,"ERROR: store id required.");

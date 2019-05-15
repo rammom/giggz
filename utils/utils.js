@@ -109,6 +109,19 @@ const isAuthenticated = (req, res, next) => {
 	else next('Unauthorized');
 }
 
+/**
+ * 	Calculate distance between two points (latitude and longitude)
+ */
+const distance = (lat1, lng1, lat2, lng2) => {
+	var p = 0.017453292519943295;    // Math.PI / 180
+	var c = Math.cos;
+	var a = 0.5 - c((lat2 - lat1) * p)/2 + 
+			c(lat1 * p) * c(lat2 * p) * 
+			(1 - c((lng2 - lng1) * p))/2;
+  
+	let distance = 12742 * Math.asin(Math.sqrt(a));
+	return parseFloat(distance.toFixed(1)) ; // 2 * R; R = 6371 km
+}
 
 
 
@@ -120,4 +133,5 @@ module.exports = {
 	handleError,
 	sendResponse,
 	isAuthenticated,
+	distance,
 }

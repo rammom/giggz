@@ -7,8 +7,8 @@ const apiController = require('../controllers/api.controller');
 const { isAuthenticated } = require('../utils/utils');
 
 router.post('/', isAuthenticated, apiController.store.create);
-router.get('/bunch', apiController.store.getBunch);
-router.get('/:slug', apiController.store.getBySlug);
+router.get('/getByLocation', apiController.store.getByLocation);
+
 
 router.post('/employee', isAuthenticated, apiController.store.employee.add);
 
@@ -16,4 +16,5 @@ router.post('/service', isAuthenticated, apiController.store.service.add);
 router.get('/service', isAuthenticated, apiController.store.service.get);
 router.delete('/service', isAuthenticated, apiController.store.service.delete);
 
+router.get('/:slug', apiController.store.getBySlug);
 module.exports = router;
