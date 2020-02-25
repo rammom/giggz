@@ -681,6 +681,25 @@ const employee = {
 */
 const store = {
 
+	//store.getBunch
+	getBunch: async (req, res, next) => {
+		let stores = [];
+		let error = null;
+		await Store.find()
+			.limit(20)
+			.populate({
+				path: 'employees',
+				populate: [{
+					path: 'user'
+				}]
+			})
+			.then(s => stores = s)
+			.catch(e => error = e);
+		if (error)
+			return handleError(res, error, 500);
+		return sendResponse(res, { stores });
+	},
+
 	//store.getByLocation
 	getByLocation: async (req, res, next) => {
 		let stores = [];
@@ -721,6 +740,8 @@ const store = {
 	},
 	//store.getBySlug
 	getBySlug: async (req, res, next) => {
+		console.log('getbyslug');
+		console.log(req.params.slug);
 		let store = null;
 		let error = null;
 		if (!req.params.slug) return handleError(res, null, 400, "slug required");
@@ -758,12 +779,11 @@ const store = {
 			e.appointments = e.appointments.filter( appt => !appt.done() );
 			return e;
 		})
-
+		console.log('returning');
 		return sendResponse(res, {store});
 	},
 	//store.create
 	create: async (req, res, next) => {
-
 		const name = req.body.name;
 		const address = req.body.address;
 		const hours = req.body.hours;

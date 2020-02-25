@@ -19,4 +19,5 @@ router.delete('/service', passport.authenticate('jwt-employee'), apiController.e
 router.post('/appointment', passport.authenticate('jwt-user'), apiController.employee.appointment.add);
 router.put('/appointment', passport.authenticate('jwt-user'), apiController.employee.appointment.update);
 router.get('/appointment', apiController.employee.appointment.get);
+
 module.exports = router;

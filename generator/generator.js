@@ -194,10 +194,9 @@ const main = async() => {
         }
         
 
-
-        newU = users.splice(k,i+1);
+		newU = users.splice(k,i+1);
         for (let j = 0; j < newU.length ; j++){
-            let user = newU[j];
+			let user = newU[j];
             let employee_data = gen_employee_data();
             employee_data.storeid = stores[i]._id;
             employee_data.email = user.email;
@@ -206,11 +205,23 @@ const main = async() => {
             await request.post(employee_route)
                 .send(employee_data)
 				.then(function(res) {
+					console.log(res.body);
                     employee = res.body.employee;
                 })
                 .catch((err) => {
                     console.log(err);
-                });
+				});
+			await request.put(availability_employee_route)
+				.send({
+					employeeid: employee._id,
+					hours: employee_data.hours
+				})
+				.then(function(res) {
+					console.log(res.body);
+				})
+				.catch((err) => {
+					console.log(err);
+				});
             for(let e = 0; e < newU.length-j; e++){
                 let employee_service_data = {
                     serviceid: services[i*(store_names.length) + e]._id,
