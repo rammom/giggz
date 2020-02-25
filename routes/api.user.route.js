@@ -6,7 +6,10 @@ const router = express.Router();
 const apiController = require('../controllers/api.controller');
 const passport = require('passport');
 
-router.get('/', passport.authenticate('jwt-user'), apiController.user.getAuthenticatedUser);
-router.get('/getDetailedUser', passport.authenticate('jwt-user'), apiController.user.getDetailedUser);
+// router.get('/', passport.authenticate('jwt-user'), apiController.user.getAuthenticatedUser);
+// router.get('/getDetailedUser', passport.authenticate('jwt-user'), apiController.user.getDetailedUser);
+
+router.get('/',  apiController.user.getAuthenticatedUser);
+router.get('/getDetailedUser',  apiController.user.getDetailedUser);
 
 module.exports = router;

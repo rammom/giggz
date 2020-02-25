@@ -7,17 +7,30 @@ const router = express.Router();
 const apiController = require('../controllers/api.controller');
 const passport = require('passport');
 
-router.get('/', passport.authenticate('jwt-employee'), apiController.employee.get);
+// router.get('/', passport.authenticate('jwt-employee'), apiController.employee.get);
 
-router.put('/availability', passport.authenticate('jwt-employee'), apiController.employee.availability.update);
-router.get('/availability', passport.authenticate('jwt-user'), apiController.employee.availability.get);
+// router.put('/availability', passport.authenticate('jwt-employee'), apiController.employee.availability.update);
+// router.get('/availability', passport.authenticate('jwt-user'), apiController.employee.availability.get);
 
-router.post('/service', passport.authenticate('jwt-employee'), apiController.employee.service.add);
+// router.post('/service', passport.authenticate('jwt-employee'), apiController.employee.service.add);
+// router.get('/service', apiController.employee.service.get);
+// router.delete('/service', passport.authenticate('jwt-employee'), apiController.employee.service.delete);
+
+// router.post('/appointment', passport.authenticate('jwt-user'), apiController.employee.appointment.add);
+// router.put('/appointment', passport.authenticate('jwt-user'), apiController.employee.appointment.update);
+// router.get('/appointment', apiController.employee.appointment.get);
+
+router.get('/', apiController.employee.get);
+
+router.put('/availability', apiController.employee.availability.update);
+router.get('/availability',  apiController.employee.availability.get);
+
+router.post('/service', apiController.employee.service.add);
 router.get('/service', apiController.employee.service.get);
-router.delete('/service', passport.authenticate('jwt-employee'), apiController.employee.service.delete);
+router.delete('/service', apiController.employee.service.delete);
 
-router.post('/appointment', passport.authenticate('jwt-user'), apiController.employee.appointment.add);
-router.put('/appointment', passport.authenticate('jwt-user'), apiController.employee.appointment.update);
+router.post('/appointment',  apiController.employee.appointment.add);
+router.put('/appointment',  apiController.employee.appointment.update);
 router.get('/appointment', apiController.employee.appointment.get);
 
 module.exports = router;
