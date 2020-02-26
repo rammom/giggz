@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const utils = require('./utils/utils');
 const passport = require('passport');
+const cors = require('cors');
 
 
 
@@ -70,7 +71,20 @@ require('./utils/passport');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 
-
+/*
+	ENABLE CORS
+*/
+var whitelist = ['https://giggz.mrammo.ca', 'https://giggz-store.mrammo.ca', 'http://localhost'];
+var corsOptions = {
+	origin: function (origin, callback) {
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true)
+		} else {
+			callback(new Error('Not allowed by CORS'))
+		}
+	}
+}
+app.use(cors(corsOptions));
 
 /*
 	HANDLE ROUTES
