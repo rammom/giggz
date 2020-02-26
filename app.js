@@ -54,7 +54,7 @@ const authRouter = require('./routes/auth.route');
 /*
 	ENABLE CORS
 */
-var whitelist = ['https://giggz.mrammo.ca/*', 'https://giggz-store.mrammo.ca/*', 'http://localhost/*'];
+var whitelist = ['https://giggz.mrammo.ca', 'https://giggz-store.mrammo.ca', 'http://localhost'];
 var corsOptions = {
 	origin: function (origin, callback) {
 		if (whitelist.indexOf(origin) !== -1) {
@@ -64,7 +64,7 @@ var corsOptions = {
 		}
 	}
 }
-app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 /*
 	MORE MIDDLEWARE & PASSPORT STUFF
