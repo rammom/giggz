@@ -1123,6 +1123,8 @@ const user = {
 		sendResponse(res, {user});
 	},
 	getDetailedUser: async (req, res, next) => {
+		console.log('get detailed user');
+		console.log(req.user._id);
 		if (!req.user._id) return sendResponse(res, {}, "unauthorized", 401);
 		await User.findById(req.user._id)
 			.populate({

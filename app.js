@@ -50,6 +50,18 @@ const apiRouter = {
 const authRouter = require('./routes/auth.route');
 
 /*
+	MORE MIDDLEWARE & PASSPORT STUFF
+*/
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+require('./utils/passport');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(passport.initialize());
+
+/*
 	ENABLE CORS
 */
 app.use(function (req, res, next) {
@@ -63,18 +75,6 @@ app.use(function (req, res, next) {
 	res.setHeader('Access-Control-Allow-Credentials', true);
 	next();
 });
-
-/*
-	MORE MIDDLEWARE & PASSPORT STUFF
-*/
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-require('./utils/passport');
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(passport.initialize());
 
 /*
 	HANDLE ROUTES
