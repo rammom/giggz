@@ -54,18 +54,17 @@ const authRouter = require('./routes/auth.route');
 /*
 	ENABLE CORS
 */
-// CORS headers
-app.use(function (req, res, next) {
-	var whitelist = [`https://giggz.mrammo.ca`, `https://giggz-store.mrammo.ca`, `http://localhost`];
-	var origin = req.headers.origin;
-	if (whitelist.includes(origin)) {
-		res.setHeader('Access-Control-Allow-Origin', origin);
+var whitelist = ['https://giggz.mrammo.ca', 'https://giggz-store.mrammo.ca', 'http://localhost'];
+var corsOptions = {
+	origin: function (origin, callback) {
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true)
+		} else {
+			callback(new Error('Not allowed by CORS'))
+		}
 	}
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-	res.setHeader('Access-Control-Allow-Credentials', true);
-	next();
-});
+}
+app.options("*", cors(corsOptions));
 
 /*
 	MORE MIDDLEWARE & PASSPORT STUFF
