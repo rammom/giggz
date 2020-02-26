@@ -7,6 +7,7 @@ const JwtOptions = {
 	secretOrKey: process.env.SECRET_OR_KEY
 }
 
+console.log(JwtOptions);
 
 passport.use('jwt-user', new JwtStrategy(
 	JwtOptions,
