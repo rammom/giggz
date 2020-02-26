@@ -39,10 +39,6 @@ mongoose.connect(`mongodb://${mongo.ip}:${mongo.port}/${mongo.name}`, { useNewUr
 		() => { if (app.get('env') === 'development') console.log(`* Failed to connect to mongodb database (${mongo.name}) at ${mongo.ip}:${mongo.port}`); } 	// fail
 	);
 
-
-
-
-
 /*
 	ROUTERS
 */
@@ -55,9 +51,20 @@ const apiRouter = {
 }
 const authRouter = require('./routes/auth.route');
 
-
-
-
+/*
+	ENABLE CORS
+*/
+var whitelist = ['https://giggz.mrammo.ca/*', 'https://giggz-store.mrammo.ca/*', 'http://localhost/*'];
+var corsOptions = {
+	origin: function (origin, callback) {
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true)
+		} else {
+			callback(new Error('Not allowed by CORS'))
+		}
+	}
+}
+app.use(cors(corsOptions));
 
 /*
 	MORE MIDDLEWARE & PASSPORT STUFF
@@ -70,21 +77,6 @@ require('./utils/passport');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
-
-/*
-	ENABLE CORS
-*/
-var whitelist = ['https://giggz.mrammo.ca', 'https://giggz-store.mrammo.ca', 'http://localhost'];
-var corsOptions = {
-	origin: function (origin, callback) {
-		if (whitelist.indexOf(origin) !== -1) {
-			callback(null, true)
-		} else {
-			callback(new Error('Not allowed by CORS'))
-		}
-	}
-}
-app.use(cors(corsOptions));
 
 /*
 	HANDLE ROUTES
