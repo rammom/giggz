@@ -7,8 +7,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const utils = require('./utils/utils');
 const passport = require('passport');
-const cors = require('cors');
-
 
 
 
